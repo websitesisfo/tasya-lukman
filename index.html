@@ -1221,7 +1221,10 @@
 
             if (onboardingSkip) {
                 onboarding.style.display = 'none';
-                handleDownloadCloud().then(() => hideIntro(2200));
+                // Wait for initial cloud data before showing the app
+                handleDownloadCloud().finally(() => {
+                    hideIntro(2200);
+                });
             } else {
                 intro.style.display = 'none';
             }
@@ -1587,56 +1590,60 @@
             if (indicator) {
                 indicator.style.opacity = '1';
                 indicator.style.background = 'rgba(26, 26, 26, 0.9)';
+                indicator.innerHTML = '<span>⏳</span> Mengirim Data...';
             }
 
             try {
-                const res = await fetch(`https://kvdb.io/TLSeserahan26/data`, {
+                const timestamp = Date.now();
+                localStorage.setItem('seserahan_last_update', timestamp);
+
+                const res = await fetch(`https://kvdb.io/tasya_lukman_v2026/data`, {
                     method: 'POST',
-                    mode: 'cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         categories: categories,
                         items: items,
-                        lastUpdate: Date.now()
+                        updatedAt: timestamp
                     })
                 });
-                if (!res.ok) throw new Error('Network error');
+
+                if (!res.ok) throw new Error('Network response not ok');
+
+                if (indicator) {
+                    indicator.innerHTML = '<span style="color:#4CAF50;">✔</span> Data Tersimpan';
+                    setTimeout(() => { indicator.style.opacity = '0'; }, 1000);
+                }
             } catch (e) {
                 console.error('Upload Error:', e);
-                if (indicator) indicator.style.background = '#d32f2f';
-            } finally {
-                if (indicator) setTimeout(() => indicator.style.opacity = '0', 1500);
+                if (indicator) {
+                    indicator.style.background = '#d32f2f';
+                    indicator.innerHTML = '<span>❌</span> Gagal Sinkron';
+                    setTimeout(() => { indicator.style.opacity = '0'; }, 3000);
+                }
             }
         }
 
         async function handleDownloadCloud() {
             try {
-                const res = await fetch(`https://kvdb.io/TLSeserahan26/data?t=${Date.now()}`, {
-                    mode: 'cors',
-                    cache: 'no-store'
-                });
+                const res = await fetch(`https://kvdb.io/tasya_lukman_v2026/data?nocache=${Date.now()}`);
                 if (!res.ok) return true;
 
                 const cloudData = await res.json();
-                if (!cloudData || (!cloudData.categories && !cloudData.items)) return true;
+                if (!cloudData || !cloudData.updatedAt) return true;
 
-                const cloudDataStr = JSON.stringify({
-                    categories: cloudData.categories || [],
-                    items: cloudData.items || []
-                });
+                const lastLocalUpdate = parseInt(localStorage.getItem('seserahan_last_update') || '0');
 
-                const localDataStr = JSON.stringify({
-                    categories: JSON.parse(localStorage.getItem('seserahanCategories') || '[]'),
-                    items: JSON.parse(localStorage.getItem('seserahanItems') || '[]')
-                });
-
-                if (cloudDataStr !== localDataStr) {
+                // Only sync if cloud data is newer than our last upload/download
+                if (cloudData.updatedAt > lastLocalUpdate) {
                     categories = cloudData.categories || [];
                     items = cloudData.items || [];
-                    // Sync immediately to local storage to prevent loops
+
                     localStorage.setItem('seserahanCategories', JSON.stringify(categories));
                     localStorage.setItem('seserahanItems', JSON.stringify(items));
+                    localStorage.setItem('seserahan_last_update', cloudData.updatedAt);
+
                     renderTable();
+                    showSuccessMessage('Data Diperbarui dari HP Lain!');
                 }
                 return true;
             } catch (e) {
@@ -1645,7 +1652,7 @@
             }
         }
 
-        // Auto-sync every 5 seconds for real-time experience
+        // Background Check every 5 seconds
         setInterval(() => {
             if (sessionStorage.getItem('onboardingSkip')) {
                 handleDownloadCloud();
