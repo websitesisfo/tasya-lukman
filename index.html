@@ -1586,39 +1586,43 @@
             const indicator = document.getElementById('syncIndicator');
             if (indicator) {
                 indicator.style.opacity = '1';
-                indicator.style.background = 'rgba(0,0,0,0.7)';
-                indicator.innerHTML = '<span style="display:inline-block;width:6px;height:6px;background:#4CAF50;border-radius:50%;"></span> Menyinkronkan...';
+                indicator.style.background = 'rgba(26, 26, 26, 0.9)';
             }
 
             try {
-                const res = await fetch(`https://kvdb.io/Wedding_TasyaLukman_2026/data`, {
-                    method: 'PUT', // Overwrite entire data
+                const res = await fetch(`https://kvdb.io/TLSeserahan26/data`, {
+                    method: 'POST',
+                    mode: 'cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ categories, items })
+                    body: JSON.stringify({
+                        categories: categories,
+                        items: items,
+                        lastUpdate: Date.now()
+                    })
                 });
-                if (!res.ok) throw new Error('Cek Koneksi');
+                if (!res.ok) throw new Error('Network error');
             } catch (e) {
-                console.error('Upload error:', e);
-                if (indicator) {
-                    indicator.style.background = '#C62828';
-                    indicator.textContent = 'Gagal Sinkron!';
-                }
+                console.error('Upload Error:', e);
+                if (indicator) indicator.style.background = '#d32f2f';
             } finally {
-                if (indicator) setTimeout(() => indicator.style.opacity = '0', 2000);
+                if (indicator) setTimeout(() => indicator.style.opacity = '0', 1500);
             }
         }
 
         async function handleDownloadCloud() {
             try {
-                const res = await fetch(`https://kvdb.io/Wedding_TasyaLukman_2026/data?t=${Date.now()}`);
+                const res = await fetch(`https://kvdb.io/TLSeserahan26/data?t=${Date.now()}`, {
+                    mode: 'cors',
+                    cache: 'no-store'
+                });
                 if (!res.ok) return true;
 
-                const data = await res.json();
-                if (!data) return true;
+                const cloudData = await res.json();
+                if (!cloudData || (!cloudData.categories && !cloudData.items)) return true;
 
-                const newDataStr = JSON.stringify({
-                    categories: data.categories || [],
-                    items: data.items || []
+                const cloudDataStr = JSON.stringify({
+                    categories: cloudData.categories || [],
+                    items: cloudData.items || []
                 });
 
                 const localDataStr = JSON.stringify({
@@ -1626,26 +1630,27 @@
                     items: JSON.parse(localStorage.getItem('seserahanItems') || '[]')
                 });
 
-                if (newDataStr !== localDataStr) {
-                    categories = data.categories || [];
-                    items = data.items || [];
+                if (cloudDataStr !== localDataStr) {
+                    categories = cloudData.categories || [];
+                    items = cloudData.items || [];
+                    // Sync immediately to local storage to prevent loops
                     localStorage.setItem('seserahanCategories', JSON.stringify(categories));
                     localStorage.setItem('seserahanItems', JSON.stringify(items));
                     renderTable();
                 }
                 return true;
             } catch (e) {
-                console.error('Download error:', e);
+                console.error('Download Error:', e);
                 return false;
             }
         }
 
-        // Auto-sync every 10 seconds
+        // Auto-sync every 5 seconds for real-time experience
         setInterval(() => {
             if (sessionStorage.getItem('onboardingSkip')) {
                 handleDownloadCloud();
             }
-        }, 10000);
+        }, 5000);
     </script>
 </body>
 
