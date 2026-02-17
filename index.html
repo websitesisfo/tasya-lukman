@@ -655,7 +655,7 @@
 
         .grand-total-label {
             font-family: 'Inter', sans-serif;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.1em;
             text-align: right;
@@ -663,7 +663,7 @@
         }
 
         .grand-total-value {
-            font-size: 1.4rem;
+            font-size: 1.1rem;
             font-weight: 900;
             text-align: center !important;
             font-family: 'Inter', sans-serif;
@@ -865,6 +865,14 @@
                 bottom: 20px;
                 right: 20px;
             }
+
+            .grand-total-label {
+                font-size: 0.7rem;
+            }
+
+            .grand-total-value {
+                font-size: 0.95rem;
+            }
         }
 
         @media (max-width: 480px) {
@@ -909,6 +917,14 @@
 
             .fab-icon {
                 font-size: 1.5rem;
+            }
+
+            .grand-total-label {
+                font-size: 0.65rem;
+            }
+
+            .grand-total-value {
+                font-size: 0.85rem;
             }
         }
     </style>
@@ -974,6 +990,10 @@
             <button class="fab-menu-item" id="btnAddItem">
                 <span class="menu-icon">📦</span>
                 <span>Tambah Barang</span>
+            </button>
+            <button class="fab-menu-item" id="btnSyncCloud" style="background: var(--color-gold); color: #fff;">
+                <span class="menu-icon">☁️</span>
+                <span>Sinkronisasi</span>
             </button>
         </div>
     </div>
@@ -1057,299 +1077,350 @@
                         rows="2"></textarea>
                 </div>
 
-                <button type="submit" id="itemSubmitBtn" class="btn-submit">Simpan Item Baru</button>
-            </form>
-        </div>
-    </div>
+                <!-- Modal: Cloud Sync -->
+                <div class="modal" id="modalSync">
+                    <div class="modal-overlay"></div>
+                    <div class="modal-content">
+                        <button class="modal-close" data-modal="modalSync">×</button>
+                        <div class="modal-header">
+                            <h2 class="modal-title">Sinkronisasi Cloud</h2>
+                            <p class="modal-subtitle">Gunakan ID yang sama di HP lain untuk sinkronisasi data</p>
+                        </div>
+                        <div class="modal-form">
+                            <div class="form-group">
+                                <label class="form-label">Sync ID (Kunci Rahasia)</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="text" id="syncIdInput" class="form-input"
+                                        placeholder="Masukkan atau buat ID baru..." style="font-family: monospace;">
+                                    <button class="btn-submit" id="btnGenerateId"
+                                        style="margin:0; width: auto; padding: 10px 15px;">Buat</button>
+                                </div>
+                            </div>
 
-    <footer class="footer">
-        <p>&copy; 2026 <span>anggifebrinaaa</span></p>
-        <p style="font-size: 0.65rem; margin-top: 10px; opacity: 0.5; text-transform: uppercase;">Engagement Planning
-            Journal Tasya <span class="footer-heart" style="font-size: 8px;">❤</span> Lukman</p>
-    </footer>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
+                                <button class="btn-submit" id="btnUploadCloud" style="background: #4CAF50;">⬆️ Kirim
+                                    Data</button>
+                                <button class="btn-submit" id="btnDownloadCloud" style="background: #2196F3;">⬇️ Ambil
+                                    Data</button>
+                            </div>
 
-    <script>
-        // ===== Intro Animation Logic =====
-        function hideIntro() {
-            setTimeout(() => {
-                const intro = document.getElementById('introScreen');
-                if (intro) intro.classList.add('fade-out');
-            }, 2500); // Tampilkan selama 2.5 detik
-        }
-        // ===== State Management =====
-        let categories = [];
-        let items = [];
-        let isEditingCategory = false;
-        let editingCategoryId = null;
-        let isEditingItem = false;
-        let editingItemId = null;
+                            <p style="font-size: 0.7rem; color: #888; text-align: center; line-height: 1.4;">
+                                * <b>Kirim Data</b>: Mengirim data dari HP ini ke cloud.<br>
+                                * <b>Ambil Data</b>: Mengambil data dari cloud ke HP ini (data lama akan tertimpa).
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-        // Load data from localStorage on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            loadFromLocalStorage();
-            renderTable();
-            setupEventListeners();
-        });
+                <footer class="footer">
+                    <p>&copy; 2026 <span>anggifebrinaaa</span></p>
+                    <p style="font-size: 0.65rem; margin-top: 10px; opacity: 0.5; text-transform: uppercase;">Engagement
+                        Planning
+                        Journal Tasya <span class="footer-heart" style="font-size: 8px;">❤</span> Lukman</p>
+                </footer>
 
-        // ===== Event Listeners Setup =====
-        function setupEventListeners() {
-            // FAB button toggle
-            const fabButton = document.getElementById('fabButton');
-            const fabMenu = document.getElementById('fabMenu');
+                <script>
+                    // ===== Intro Animation Logic =====
+                    function hideIntro() {
+                        setTimeout(() => {
+                            const intro = document.getElementById('introScreen');
+                            if (intro) intro.classList.add('fade-out');
+                        }, 2500); // Tampilkan selama 2.5 detik
+                    }
+                    // ===== State Management =====
+                    let categories = [];
+                    let items = [];
+                    let isEditingCategory = false;
+                    let editingCategoryId = null;
+                    let isEditingItem = false;
+                    let editingItemId = null;
 
-            fabButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                fabMenu.classList.toggle('active');
-            });
+                    // Load data from localStorage on page load
+                    document.addEventListener('DOMContentLoaded', () => {
+                        loadFromLocalStorage();
+                        renderTable();
+                        setupEventListeners();
+                    });
 
-            // Close FAB menu when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.fab-container')) {
-                    fabMenu.classList.remove('active');
-                }
-            });
+                    // ===== Event Listeners Setup =====
+                    function setupEventListeners() {
+                        // FAB button toggle
+                        const fabButton = document.getElementById('fabButton');
+                        const fabMenu = document.getElementById('fabMenu');
 
-            // FAB menu items
-            document.getElementById('btnAddCategory').addEventListener('click', () => {
-                openModal('modalAddCategory');
-                fabMenu.classList.remove('active');
-            });
+                        fabButton.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            fabMenu.classList.toggle('active');
+                        });
 
-            document.getElementById('btnAddItem').addEventListener('click', () => {
-                if (categories.length === 0) {
-                    alert('Silakan buat kategori terlebih dahulu sebelum menambah barang!');
-                    return;
-                }
-                populateCategoryDropdown();
-                openModal('modalAddItem');
-                fabMenu.classList.remove('active');
-            });
+                        // Close FAB menu when clicking outside
+                        document.addEventListener('click', (e) => {
+                            if (!e.target.closest('.fab-container')) {
+                                fabMenu.classList.remove('active');
+                            }
+                        });
 
-            // Modal close buttons
-            document.querySelectorAll('.modal-close').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    closeModal(btn.dataset.modal);
-                });
-            });
+                        // FAB menu items
+                        document.getElementById('btnAddCategory').addEventListener('click', () => {
+                            openModal('modalAddCategory');
+                            fabMenu.classList.remove('active');
+                        });
 
-            // Modal overlay clicks
-            document.querySelectorAll('.modal-overlay').forEach(overlay => {
-                overlay.addEventListener('click', () => {
-                    closeModal(overlay.parentElement.id);
-                });
-            });
+                        document.getElementById('btnAddItem').addEventListener('click', () => {
+                            if (categories.length === 0) {
+                                alert('Silakan buat kategori terlebih dahulu sebelum menambah barang!');
+                                return;
+                            }
+                            populateCategoryDropdown();
+                            openModal('modalAddItem');
+                            fabMenu.classList.remove('active');
+                        });
 
-            // Category form submission
-            document.getElementById('categoryForm').addEventListener('submit', handleCategorySubmit);
+                        document.getElementById('btnSyncCloud').addEventListener('click', () => {
+                            openModal('modalSync');
+                            fabMenu.classList.remove('active');
+                            // Load existing ID from local storage if any
+                            const savedId = localStorage.getItem('seserahanSyncId');
+                            if (savedId) document.getElementById('syncIdInput').value = savedId;
+                        });
 
-            // Item form submission
-            document.getElementById('itemForm').addEventListener('submit', handleItemSubmit);
+                        document.getElementById('btnGenerateId').addEventListener('click', () => {
+                            const newId = 'TSY-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+                            document.getElementById('syncIdInput').value = newId;
+                            localStorage.setItem('seserahanSyncId', newId);
+                        });
 
-            // Auto-calculate Total
-            const priceInputs = ['itemCPP', 'itemCPW'];
-            priceInputs.forEach(id => {
-                document.getElementById(id).addEventListener('input', calculateTotal);
-            });
+                        document.getElementById('btnUploadCloud').addEventListener('submit', (e) => e.preventDefault());
+                        document.getElementById('btnDownloadCloud').addEventListener('submit', (e) => e.preventDefault());
 
-            // Update "Tambah Barang" button state
-            updateAddItemButtonState();
-        }
+                        document.getElementById('btnUploadCloud').onclick = handleUploadCloud;
+                        document.getElementById('btnDownloadCloud').onclick = handleDownloadCloud;
 
-        function calculateTotal() {
-            const cpp = parseFloat(document.getElementById('itemCPP').value) || 0;
-            const cpw = parseFloat(document.getElementById('itemCPW').value) || 0;
-            document.getElementById('itemTotal').value = cpp + cpw;
-        }
+                        // Modal close buttons
+                        document.querySelectorAll('.modal-close').forEach(btn => {
+                            btn.addEventListener('click', () => {
+                                closeModal(btn.dataset.modal);
+                            });
+                        });
 
-        // ===== Modal Functions =====
-        function openModal(modalId) {
-            const modal = document.getElementById(modalId);
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
+                        // Modal overlay clicks
+                        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                            overlay.addEventListener('click', () => {
+                                closeModal(overlay.parentElement.id);
+                            });
+                        });
 
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            modal.classList.remove('active');
-            document.body.style.overflow = '';
+                        // Category form submission
+                        document.getElementById('categoryForm').addEventListener('submit', handleCategorySubmit);
 
-            // Reset forms and edit state
-            if (modalId === 'modalAddCategory') {
-                document.getElementById('categoryForm').reset();
-                isEditingCategory = false;
-                editingCategoryId = null;
-                document.querySelector('#modalAddCategory .modal-title').textContent = 'Tambah Kategori';
-                document.getElementById('categorySubmitBtn').textContent = 'Simpan Kategori';
-            } else if (modalId === 'modalAddItem') {
-                document.getElementById('itemForm').reset();
-                isEditingItem = false;
-                editingItemId = null;
-                document.querySelector('#modalAddItem .modal-title').textContent = 'Detail Barang';
-                document.getElementById('itemSubmitBtn').textContent = 'Simpan Item Baru';
-            }
-        }
+                        // Item form submission
+                        document.getElementById('itemForm').addEventListener('submit', handleItemSubmit);
 
-        // ===== Category Functions =====
-        function openEditCategoryModal(categoryId) {
-            const category = categories.find(c => c.id === categoryId);
-            if (!category) return;
+                        // Auto-calculate Total
+                        const priceInputs = ['itemCPP', 'itemCPW'];
+                        priceInputs.forEach(id => {
+                            document.getElementById(id).addEventListener('input', calculateTotal);
+                        });
 
-            isEditingCategory = true;
-            editingCategoryId = categoryId;
+                        // Update "Tambah Barang" button state
+                        updateAddItemButtonState();
+                    }
 
-            document.getElementById('categoryName').value = category.name;
-            document.querySelector('#modalAddCategory .modal-title').textContent = 'Edit Kategori';
-            document.getElementById('categorySubmitBtn').textContent = 'Simpan Perubahan';
+                    function calculateTotal() {
+                        const cpp = parseFloat(document.getElementById('itemCPP').value) || 0;
+                        const cpw = parseFloat(document.getElementById('itemCPW').value) || 0;
+                        document.getElementById('itemTotal').value = cpp + cpw;
+                    }
 
-            openModal('modalAddCategory');
-        }
+                    // ===== Modal Functions =====
+                    function openModal(modalId) {
+                        const modal = document.getElementById(modalId);
+                        modal.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                    }
 
-        function handleCategorySubmit(e) {
-            e.preventDefault();
+                    function closeModal(modalId) {
+                        const modal = document.getElementById(modalId);
+                        modal.classList.remove('active');
+                        document.body.style.overflow = '';
 
-            const name = document.getElementById('categoryName').value.trim();
+                        // Reset forms and edit state
+                        if (modalId === 'modalAddCategory') {
+                            document.getElementById('categoryForm').reset();
+                            isEditingCategory = false;
+                            editingCategoryId = null;
+                            document.querySelector('#modalAddCategory .modal-title').textContent = 'Tambah Kategori';
+                            document.getElementById('categorySubmitBtn').textContent = 'Simpan Kategori';
+                        } else if (modalId === 'modalAddItem') {
+                            document.getElementById('itemForm').reset();
+                            isEditingItem = false;
+                            editingItemId = null;
+                            document.querySelector('#modalAddItem .modal-title').textContent = 'Detail Barang';
+                            document.getElementById('itemSubmitBtn').textContent = 'Simpan Item Baru';
+                        }
+                    }
 
-            if (isEditingCategory) {
-                const category = categories.find(c => c.id === editingCategoryId);
-                if (category) {
-                    category.name = name;
-                    showSuccessMessage('Kategori berhasil diperbarui!');
-                }
-            } else {
-                const newCategory = {
-                    id: Date.now().toString(),
-                    name: name,
-                    createdAt: new Date().toISOString()
-                };
-                categories.push(newCategory);
-                showSuccessMessage('Kategori berhasil ditambahkan!');
-            }
+                    // ===== Category Functions =====
+                    function openEditCategoryModal(categoryId) {
+                        const category = categories.find(c => c.id === categoryId);
+                        if (!category) return;
 
-            saveToLocalStorage();
-            renderTable();
-            updateAddItemButtonState();
-            closeModal('modalAddCategory');
-        }
+                        isEditingCategory = true;
+                        editingCategoryId = categoryId;
 
-        function deleteCategory(categoryId) {
-            const category = categories.find(c => c.id === categoryId);
-            const categoryItems = items.filter(i => i.categoryId === categoryId);
+                        document.getElementById('categoryName').value = category.name;
+                        document.querySelector('#modalAddCategory .modal-title').textContent = 'Edit Kategori';
+                        document.getElementById('categorySubmitBtn').textContent = 'Simpan Perubahan';
 
-            let confirmMessage = `Apakah Anda yakin ingin menghapus kategori "${category.name}"?`;
-            if (categoryItems.length > 0) {
-                confirmMessage += `\n\nKategori ini memiliki ${categoryItems.length} barang yang akan ikut terhapus.`;
-            }
+                        openModal('modalAddCategory');
+                    }
 
-            if (confirm(confirmMessage)) {
-                categories = categories.filter(c => c.id !== categoryId);
-                items = items.filter(i => i.categoryId !== categoryId);
-                saveToLocalStorage();
-                renderTable();
-                updateAddItemButtonState();
-            }
-        }
+                    function handleCategorySubmit(e) {
+                        e.preventDefault();
 
-        // ===== Item Functions =====
-        function openEditItemModal(itemId) {
-            const item = items.find(i => i.id === itemId);
-            if (!item) return;
+                        const name = document.getElementById('categoryName').value.trim();
 
-            isEditingItem = true;
-            editingItemId = itemId;
+                        if (isEditingCategory) {
+                            const category = categories.find(c => c.id === editingCategoryId);
+                            if (category) {
+                                category.name = name;
+                                showSuccessMessage('Kategori berhasil diperbarui!');
+                            }
+                        } else {
+                            const newCategory = {
+                                id: Date.now().toString(),
+                                name: name,
+                                createdAt: new Date().toISOString()
+                            };
+                            categories.push(newCategory);
+                            showSuccessMessage('Kategori berhasil ditambahkan!');
+                        }
 
-            populateCategoryDropdown();
-            document.getElementById('itemCategory').value = item.categoryId;
-            document.getElementById('itemName').value = item.name;
-            document.getElementById('itemStatus').value = item.status;
-            document.getElementById('itemVendor').value = item.vendor || '';
-            document.getElementById('itemCPP').value = item.cpp || 0;
-            document.getElementById('itemCPW').value = item.cpw || 0;
-            document.getElementById('itemTotal').value = item.total || 0;
-            document.getElementById('itemNote').value = item.note || '';
+                        saveToLocalStorage();
+                        renderTable();
+                        updateAddItemButtonState();
+                        closeModal('modalAddCategory');
+                    }
 
-            document.querySelector('#modalAddItem .modal-title').textContent = 'Edit Item';
-            document.getElementById('itemSubmitBtn').textContent = 'Simpan Perubahan';
+                    function deleteCategory(categoryId) {
+                        const category = categories.find(c => c.id === categoryId);
+                        const categoryItems = items.filter(i => i.categoryId === categoryId);
 
-            openModal('modalAddItem');
-        }
+                        let confirmMessage = `Apakah Anda yakin ingin menghapus kategori "${category.name}"?`;
+                        if (categoryItems.length > 0) {
+                            confirmMessage += `\n\nKategori ini memiliki ${categoryItems.length} barang yang akan ikut terhapus.`;
+                        }
 
-        function handleItemSubmit(e) {
-            e.preventDefault();
+                        if (confirm(confirmMessage)) {
+                            categories = categories.filter(c => c.id !== categoryId);
+                            items = items.filter(i => i.categoryId !== categoryId);
+                            saveToLocalStorage();
+                            renderTable();
+                            updateAddItemButtonState();
+                        }
+                    }
 
-            const categoryId = document.getElementById('itemCategory').value;
-            const name = document.getElementById('itemName').value.trim();
-            const status = document.getElementById('itemStatus').value;
-            const vendor = document.getElementById('itemVendor').value.trim();
-            const cpp = parseFloat(document.getElementById('itemCPP').value) || 0;
-            const cpw = parseFloat(document.getElementById('itemCPW').value) || 0;
-            const total = parseFloat(document.getElementById('itemTotal').value) || 0;
-            const note = document.getElementById('itemNote').value.trim();
+                    // ===== Item Functions =====
+                    function openEditItemModal(itemId) {
+                        const item = items.find(i => i.id === itemId);
+                        if (!item) return;
 
-            if (isEditingItem) {
-                const item = items.find(i => i.id === editingItemId);
-                if (item) {
-                    item.categoryId = categoryId;
-                    item.name = name;
-                    item.status = status;
-                    item.vendor = vendor;
-                    item.cpp = cpp;
-                    item.cpw = cpw;
-                    item.total = total;
-                    item.note = note;
-                    showSuccessMessage('Barang berhasil diperbarui!');
-                }
-            } else {
-                const newItem = {
-                    id: Date.now().toString(),
-                    categoryId: categoryId,
-                    name: name,
-                    status: status,
-                    vendor: vendor,
-                    cpp: cpp,
-                    cpw: cpw,
-                    total: total,
-                    note: note,
-                    createdAt: new Date().toISOString()
-                };
-                items.push(newItem);
-                showSuccessMessage('Barang berhasil ditambahkan!');
-            }
+                        isEditingItem = true;
+                        editingItemId = itemId;
 
-            saveToLocalStorage();
-            renderTable();
-            closeModal('modalAddItem');
-        }
+                        populateCategoryDropdown();
+                        document.getElementById('itemCategory').value = item.categoryId;
+                        document.getElementById('itemName').value = item.name;
+                        document.getElementById('itemStatus').value = item.status;
+                        document.getElementById('itemVendor').value = item.vendor || '';
+                        document.getElementById('itemCPP').value = item.cpp || 0;
+                        document.getElementById('itemCPW').value = item.cpw || 0;
+                        document.getElementById('itemTotal').value = item.total || 0;
+                        document.getElementById('itemNote').value = item.note || '';
 
-        function deleteItem(itemId) {
-            if (confirm('Apakah Anda yakin ingin menghapus barang ini?')) {
-                items = items.filter(i => i.id !== itemId);
-                saveToLocalStorage();
-                renderTable();
-            }
-        }
+                        document.querySelector('#modalAddItem .modal-title').textContent = 'Edit Item';
+                        document.getElementById('itemSubmitBtn').textContent = 'Simpan Perubahan';
 
-        // ===== Render Functions =====
-        function renderTable() {
-            const tableBody = document.getElementById('tableBody');
+                        openModal('modalAddItem');
+                    }
 
-            if (categories.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 40px;">Belum ada kategori. Silakan tambah kategori terlebih dahulu.</td></tr>`;
-                return;
-            }
+                    function handleItemSubmit(e) {
+                        e.preventDefault();
 
-            let html = '';
-            let categoryCounter = 1;
+                        const categoryId = document.getElementById('itemCategory').value;
+                        const name = document.getElementById('itemName').value.trim();
+                        const status = document.getElementById('itemStatus').value;
+                        const vendor = document.getElementById('itemVendor').value.trim();
+                        const cpp = parseFloat(document.getElementById('itemCPP').value) || 0;
+                        const cpw = parseFloat(document.getElementById('itemCPW').value) || 0;
+                        const total = parseFloat(document.getElementById('itemTotal').value) || 0;
+                        const note = document.getElementById('itemNote').value.trim();
 
-            let grandTotal = 0;
-            categories.forEach((category) => {
-                const categoryItems = items.filter(item => item.categoryId === category.id);
+                        if (isEditingItem) {
+                            const item = items.find(i => i.id === editingItemId);
+                            if (item) {
+                                item.categoryId = categoryId;
+                                item.name = name;
+                                item.status = status;
+                                item.vendor = vendor;
+                                item.cpp = cpp;
+                                item.cpw = cpw;
+                                item.total = total;
+                                item.note = note;
+                                showSuccessMessage('Barang berhasil diperbarui!');
+                            }
+                        } else {
+                            const newItem = {
+                                id: Date.now().toString(),
+                                categoryId: categoryId,
+                                name: name,
+                                status: status,
+                                vendor: vendor,
+                                cpp: cpp,
+                                cpw: cpw,
+                                total: total,
+                                note: note,
+                                createdAt: new Date().toISOString()
+                            };
+                            items.push(newItem);
+                            showSuccessMessage('Barang berhasil ditambahkan!');
+                        }
 
-                // Sort items within category if needed
-                const itemsToRender = [...categoryItems].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                        saveToLocalStorage();
+                        renderTable();
+                        closeModal('modalAddItem');
+                    }
 
-                if (itemsToRender.length === 0) {
-                    // Render an empty row for categories with no items to match spreadsheet look
-                    html += `
+                    function deleteItem(itemId) {
+                        if (confirm('Apakah Anda yakin ingin menghapus barang ini?')) {
+                            items = items.filter(i => i.id !== itemId);
+                            saveToLocalStorage();
+                            renderTable();
+                        }
+                    }
+
+                    // ===== Render Functions =====
+                    function renderTable() {
+                        const tableBody = document.getElementById('tableBody');
+
+                        if (categories.length === 0) {
+                            tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 40px;">Belum ada kategori. Silakan tambah kategori terlebih dahulu.</td></tr>`;
+                            return;
+                        }
+
+                        let html = '';
+                        let categoryCounter = 1;
+
+                        let grandTotal = 0;
+                        categories.forEach((category) => {
+                            const categoryItems = items.filter(item => item.categoryId === category.id);
+
+                            // Sort items within category if needed
+                            const itemsToRender = [...categoryItems].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+                            if (itemsToRender.length === 0) {
+                                // Render an empty row for categories with no items to match spreadsheet look
+                                html += `
                         <tr>
                             <td class="no-col">${categoryCounter++}</td>
                             <td class="category-header">${category.name}</td>
@@ -1360,28 +1431,28 @@
                             </td>
                         </tr>
                     `;
-                    return;
-                }
+                                return;
+                            }
 
-                const rowSpan = itemsToRender.length;
-                let categoryTotal = 0;
+                            const rowSpan = itemsToRender.length;
+                            let categoryTotal = 0;
 
-                categoryItems.forEach((item, index) => {
-                    const statusClass = item.status ? `status-${item.status.toLowerCase()}` : 'status-belum';
-                    const itemTotal = (item.total || 0);
-                    categoryTotal += itemTotal;
-                    grandTotal += itemTotal;
+                            categoryItems.forEach((item, index) => {
+                                const statusClass = item.status ? `status-${item.status.toLowerCase()}` : 'status-belum';
+                                const itemTotal = (item.total || 0);
+                                categoryTotal += itemTotal;
+                                grandTotal += itemTotal;
 
-                    let vendorHTML = item.vendor || '-';
-                    if (item.vendor && (item.vendor.startsWith('http') || item.vendor.includes('www.'))) {
-                        const url = item.vendor.startsWith('http') ? item.vendor : `https://${item.vendor}`;
-                        vendorHTML = `<div style="text-align: center;"><a href="${url}" target="_blank" style="color: #D4AF37; font-weight: 700; text-decoration: none; border: 1px solid #D4AF37; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; display: inline-block;">BELI DISINI</a></div>`;
-                    }
+                                let vendorHTML = item.vendor || '-';
+                                if (item.vendor && (item.vendor.startsWith('http') || item.vendor.includes('www.'))) {
+                                    const url = item.vendor.startsWith('http') ? item.vendor : `https://${item.vendor}`;
+                                    vendorHTML = `<div style="text-align: center;"><a href="${url}" target="_blank" style="color: #D4AF37; font-weight: 700; text-decoration: none; border: 1px solid #D4AF37; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; display: inline-block;">BELI DISINI</a></div>`;
+                                }
 
-                    // Add a class to rows for styling category groups
-                    const rowGroupClass = index === 0 ? 'category-first-row' : '';
+                                // Add a class to rows for styling category groups
+                                const rowGroupClass = index === 0 ? 'category-first-row' : '';
 
-                    html += `
+                                html += `
                         <tr class="${rowGroupClass}">
                             ${index === 0 ? `<td class="no-col" rowspan="${rowSpan + 1}" style="background: #FFFDE7 !important;">${categoryCounter++}</td>` : ''}
                             ${index === 0 ? `<td class="category-header" rowspan="${rowSpan + 1}" style="background: #FFFDE7 !important;">${category.name}</td>` : ''}
@@ -1402,20 +1473,20 @@
                             </td>
                         </tr>
                     `;
-                });
+                            });
 
-                // Add Total row for this category
-                html += `
+                            // Add Total row for this category
+                            html += `
                     <tr class="total-row">
                         <td class="total-label" colspan="3">Total</td>
                         <td class="amount" colspan="3" style="background: transparent !important; border-left: none;"><span class="amount-prefix">Rp</span> ${formatCurrencyValue(categoryTotal)}</td>
                         <td colspan="2" class="actions-cell"></td>
                     </tr>
                 `;
-            });
+                        });
 
-            // Add Grand Total row
-            html += `
+                        // Add Grand Total row
+                        html += `
                 <tr class="grand-total-row">
                     <td colspan="5" class="grand-total-label">Total Keseluruhan</td>
                     <td colspan="3" class="grand-total-value">Rp ${formatCurrencyValue(grandTotal)}</td>
@@ -1423,79 +1494,79 @@
                 </tr>
             `;
 
-            tableBody.innerHTML = html;
-        }
+                        tableBody.innerHTML = html;
+                    }
 
-        function formatCurrencyValue(amount) {
-            return new Intl.NumberFormat('id-ID', {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            }).format(amount);
-        }
+                    function formatCurrencyValue(amount) {
+                        return new Intl.NumberFormat('id-ID', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        }).format(amount);
+                    }
 
-        function populateCategoryDropdown() {
-            const select = document.getElementById('itemCategory');
-            select.innerHTML = '<option value="">Pilih Kategori</option>' +
-                categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
-        }
+                    function populateCategoryDropdown() {
+                        const select = document.getElementById('itemCategory');
+                        select.innerHTML = '<option value="">Pilih Kategori</option>' +
+                            categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+                    }
 
-        // ===== Summary Logic (Disabled - now in table) =====
-        function updateSummary() {
-            // No longer needed
-        }
+                    // ===== Summary Logic (Disabled - now in table) =====
+                    function updateSummary() {
+                        // No longer needed
+                    }
 
-        function updateAddItemButtonState() {
-            const btnAddItem = document.getElementById('btnAddItem');
-            if (categories.length === 0) {
-                btnAddItem.disabled = true;
-                btnAddItem.style.opacity = '0.5';
-            } else {
-                btnAddItem.disabled = false;
-                btnAddItem.style.opacity = '1';
-            }
-        }
+                    function updateAddItemButtonState() {
+                        const btnAddItem = document.getElementById('btnAddItem');
+                        if (categories.length === 0) {
+                            btnAddItem.disabled = true;
+                            btnAddItem.style.opacity = '0.5';
+                        } else {
+                            btnAddItem.disabled = false;
+                            btnAddItem.style.opacity = '1';
+                        }
+                    }
 
-        // ===== Utility Functions =====
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            }).format(amount);
-        }
+                    // ===== Utility Functions =====
+                    function formatCurrency(amount) {
+                        return new Intl.NumberFormat('id-ID', {
+                            style: 'currency',
+                            currency: 'IDR',
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        }).format(amount);
+                    }
 
-        function saveToLocalStorage() {
-            localStorage.setItem('seserahanCategories', JSON.stringify(categories));
-            localStorage.setItem('seserahanItems', JSON.stringify(items));
-        }
+                    function saveToLocalStorage() {
+                        localStorage.setItem('seserahanCategories', JSON.stringify(categories));
+                        localStorage.setItem('seserahanItems', JSON.stringify(items));
+                    }
 
-        function loadFromLocalStorage() {
-            const storedCategories = localStorage.getItem('seserahanCategories');
-            const storedItems = localStorage.getItem('seserahanItems');
+                    function loadFromLocalStorage() {
+                        const storedCategories = localStorage.getItem('seserahanCategories');
+                        const storedItems = localStorage.getItem('seserahanItems');
 
-            if (storedCategories) {
-                try {
-                    categories = JSON.parse(storedCategories);
-                } catch (e) {
-                    console.error('Error loading categories:', e);
-                    categories = [];
-                }
-            }
+                        if (storedCategories) {
+                            try {
+                                categories = JSON.parse(storedCategories);
+                            } catch (e) {
+                                console.error('Error loading categories:', e);
+                                categories = [];
+                            }
+                        }
 
-            if (storedItems) {
-                try {
-                    items = JSON.parse(storedItems);
-                } catch (e) {
-                    console.error('Error loading items:', e);
-                    items = [];
-                }
-            }
-        }
+                        if (storedItems) {
+                            try {
+                                items = JSON.parse(storedItems);
+                            } catch (e) {
+                                console.error('Error loading items:', e);
+                                items = [];
+                            }
+                        }
+                    }
 
-        function showSuccessMessage(message) {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
+                    function showSuccessMessage(message) {
+                        const notification = document.createElement('div');
+                        notification.style.cssText = `
                 position: fixed;
                 top: 20px;
                 right: 20px;
@@ -1509,15 +1580,94 @@
                 font-family: var(--font-body);
                 font-weight: 600;
             `;
-            notification.textContent = `✓ ${message}`;
+                        notification.textContent = `✓ ${message}`;
 
-            document.body.appendChild(notification);
+                        document.body.appendChild(notification);
 
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-    </script>
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 3000);
+                    }
+
+                    // ===== Cloud Sync Functions =====
+                    async function handleUploadCloud() {
+                        const syncId = document.getElementById('syncIdInput').value.trim();
+                        if (!syncId) { alert('Masukkan Sync ID terlebih dahulu!'); return; }
+
+                        const btn = document.getElementById('btnUploadCloud');
+                        const originalText = btn.textContent;
+                        btn.textContent = 'Mengirim...';
+                        btn.disabled = true;
+
+                        try {
+                            const data = { categories, items, timestamp: new Date().toISOString() };
+
+                            // Fetch the existing pool first
+                            const currentPoolResponse = await fetch(`https://api.npoint.io/0879684784a32d665780`);
+                            let pool = {};
+                            if (currentPoolResponse.ok) pool = await currentPoolResponse.json();
+
+                            pool[syncId] = data;
+
+                            const updateResponse = await fetch(`https://api.npoint.io/0879684784a32d665780`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(pool)
+                            });
+
+                            if (updateResponse.ok) {
+                                localStorage.setItem('seserahanSyncId', syncId);
+                                showSuccessMessage('Data berhasil dikirim ke Cloud!');
+                            } else {
+                                throw new Error('Gagal memperbarui data.');
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            alert('Gagal mengirim data. Pastikan koneksi internet aktif.');
+                        } finally {
+                            btn.textContent = originalText;
+                            btn.disabled = false;
+                        }
+                    }
+
+                    async function handleDownloadCloud() {
+                        const syncId = document.getElementById('syncIdInput').value.trim();
+                        if (!syncId) { alert('Masukkan Sync ID terlebih dahulu!'); return; }
+
+                        if (!confirm('Peringatan: Data yang ada di HP ini akan ditimpa dengan data dari Cloud. Lanjutkan?')) return;
+
+                        const btn = document.getElementById('btnDownloadCloud');
+                        const originalText = btn.textContent;
+                        btn.textContent = 'Mengambil...';
+                        btn.disabled = true;
+
+                        try {
+                            const response = await fetch(`https://api.npoint.io/0879684784a32d665780`);
+                            if (!response.ok) throw new Error('Gagal terhubung ke server.');
+
+                            const pool = await response.json();
+                            const cloudData = pool[syncId];
+
+                            if (cloudData) {
+                                categories = cloudData.categories || [];
+                                items = cloudData.items || [];
+                                saveToLocalStorage();
+                                renderTable();
+                                localStorage.setItem('seserahanSyncId', syncId);
+                                showSuccessMessage('Data Cloud berhasil disinkronkan ke HP ini!');
+                                closeModal('modalSync');
+                            } else {
+                                alert('ID tidak ditemukan di Cloud. Pastikan ID sudah benar atau data sudah pernah dikirim dari HP asal.');
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            alert('Gagal mengambil data. Pastikan ID benar dan koneksi internet aktif.');
+                        } finally {
+                            btn.textContent = originalText;
+                            btn.disabled = false;
+                        }
+                    }
+                </script>
 </body>
 
-</html>
+            </html>
