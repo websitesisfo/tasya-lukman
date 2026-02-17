@@ -974,7 +974,7 @@
             }
 
             .intro-text {
-                font-size: 2rem;
+                font-size: 2.8rem;
             }
 
             .data-table {
@@ -1028,7 +1028,7 @@
             <p>Pilih bagaimana Anda ingin memulai jurnal perencanaan pernikahan ini.</p>
 
             <div class="onboarding-input-group">
-                <input type="text" id="onboardingSyncId" class="form-input" placeholder="Masukkan Sync ID (Jika ada)"
+                <input type="text" id="onboardingSyncId" class="form-input" placeholder="Kode: tasya-lukman"
                     style="text-align: center; font-family: monospace; margin-bottom: 10px;">
                 <button class="onboarding-btn" id="btnContinueSync"
                     style="background: #2196F3; margin-bottom: 10px;">Lanjutkan dari HP Lain</button>
@@ -1192,55 +1192,67 @@
                     <textarea id="itemNote" class="form-input" placeholder="Tulis catatan di sini..."
                         rows="2"></textarea>
                 </div>
+                <button type="submit" id="itemSubmitBtn" class="btn-submit">Simpan Barang</button>
+            </form>
+        </div>
+    </div>
 
-                <!-- Modal: Cloud Sync -->
-                <div class="modal" id="modalSync">
-                    <div class="modal-overlay"></div>
-                    <div class="modal-content">
-                        <button class="modal-close" data-modal="modalSync">×</button>
-                        <div class="modal-header">
-                            <h2 class="modal-title">Sinkronisasi Cloud</h2>
-                            <p class="modal-subtitle">Gunakan ID yang sama di HP lain untuk sinkronisasi data</p>
-                        </div>
-                        <div class="modal-form">
-                            <div class="form-group">
-                                <label class="form-label">Sync ID (Kunci Rahasia)</label>
-                                <div style="display: flex; gap: 10px;">
-                                    <input type="text" id="syncIdInput" class="form-input"
-                                        placeholder="Masukkan atau buat ID baru..." style="font-family: monospace;">
-                                    <button class="btn-submit" id="btnGenerateId"
-                                        style="margin:0; width: auto; padding: 10px 15px;">Buat</button>
-                                </div>
-                            </div>
+    <!-- Modal: Cloud Sync -->
+    <div class="modal" id="modalSync">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" data-modal="modalSync">×</button>
+            <div class="modal-header">
+                <h2 class="modal-title">Sinkronisasi Cloud</h2>
+                <p class="modal-subtitle">Gunakan ID yang sama di HP lain untuk sinkronisasi data</p>
+            </div>
+            <div class="modal-form">
+                <div class="form-group"
+                    style="background: #F9F9F9; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px dashed #D4AF37;">
+                    <label class="form-label" style="color: var(--color-accent);">🔑 KODE RAHASIA:</label>
+                    <div id="currentSyncIdDisplay"
+                        style="font-family: monospace; font-size: 1.2rem; font-weight: 800; color: #1A1A1A; text-align: center; margin-top: 5px;">
+                        tasya-lukman</div>
+                </div>
 
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
-                                <button class="btn-submit" id="btnUploadCloud" style="background: #4CAF50;">⬆️ Kirim
-                                    Data</button>
-                                <button class="btn-submit" id="btnDownloadCloud" style="background: #2196F3;">⬇️ Ambil
-                                    Data</button>
-                            </div>
-                            <p style="font-size: 0.7rem; color: #888; text-align: center; line-height: 1.4;">
-                                * <b>Kirim Data</b>: Mengirim data dari HP ini ke cloud.<br>
-                                * <b>Ambil Data</b>: Mengambil data dari cloud ke HP ini (data lama akan tertimpa).
-                            </p>
-                        </div>
+                <div class="form-group">
+                    <label class="form-label">Update Kode Sync</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="syncIdInput" class="form-input" value="tasya-lukman"
+                            style="font-family: monospace;" readonly>
                     </div>
                 </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
+                    <button class="btn-submit" id="btnUploadCloud" style="background: #4CAF50;">⬆️ Kirim
+                        Data</button>
+                    <button class="btn-submit" id="btnDownloadCloud" style="background: #2196F3;">⬇️ Ambil
+                        Data</button>
+                </div>
+                <p style="font-size: 0.7rem; color: #888; text-align: center; line-height: 1.4;">
+                    * <b>Kirim Data</b>: Mengirim data dari HP ini ke cloud.<br>
+                    * <b>Ambil Data</b>: Mengambil data dari cloud ke HP ini (data lama akan tertimpa).
+                </p>
+            </div>
         </div>
     </div>
 
     <footer class="footer">
         <p>&copy; 2026 <span>anggifebrinaaa</span></p>
-        <p style="font-size: 0.65rem; margin-top: 10px; opacity: 0.5; text-transform: uppercase;">Engagement Planning
+        <p style="font-size: 0.65rem; margin-top: 10px; opacity: 0.5; text-transform: uppercase;">Engagement
+            Planning
             Journal Tasya <span class="footer-heart" style="font-size: 8px;">❤</span> Lukman</p>
     </footer>
 
     <script>
         // ===== Initialization Flow =====
         function initApp() {
+            localStorage.setItem('seserahanSyncId', 'tasya-lukman'); // Default fixed ID
+            document.getElementById('onboardingSyncId').value = 'tasya-lukman'; // Pre-fill onboarding
             loadFromLocalStorage();
             renderTable();
             setupEventListeners();
+            updateSyncUI();
 
             const hasData = categories.length > 0 || items.length > 0;
             const onboardingSkip = localStorage.getItem('onboardingSkip');
@@ -1343,11 +1355,16 @@
                 if (savedId) document.getElementById('syncIdInput').value = savedId;
             });
 
-            document.getElementById('btnGenerateId').addEventListener('click', () => {
-                const newId = 'TSY-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-                document.getElementById('syncIdInput').value = newId;
-                localStorage.setItem('seserahanSyncId', newId);
-            });
+            // ID is now fixed to 'tasya-lukman'
+
+            function updateSyncUI() {
+                const sid = 'tasya-lukman';
+                const display = document.getElementById('currentSyncIdDisplay');
+                if (display) display.textContent = sid;
+
+                const syncBtnLabel = document.querySelector('#btnSyncCloud span:last-child');
+                if (syncBtnLabel) syncBtnLabel.textContent = `Sync: ${sid}`;
+            }
 
             document.getElementById('btnUploadCloud').onclick = handleUploadCloud;
             document.getElementById('btnDownloadCloud').onclick = () => handleDownloadCloud();
@@ -1650,6 +1667,7 @@
                 saveToLocalStorage();
                 renderTable();
                 localStorage.setItem('seserahanSyncId', syncId);
+                updateSyncUI();
                 showSuccessMessage('Data sinkron!');
                 closeModal('modalSync');
                 return true;
