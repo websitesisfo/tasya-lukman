@@ -1221,7 +1221,7 @@
 
             if (onboardingSkip) {
                 onboarding.style.display = 'none';
-                handleDownloadCloud(SESSION_ID).then(() => hideIntro(2200));
+                handleDownloadCloud().then(() => hideIntro(2200));
             } else {
                 intro.style.display = 'none';
             }
@@ -1584,48 +1584,58 @@
         // ===== Cloud Sync Core =====
         async function handleUploadCloud() {
             const indicator = document.getElementById('syncIndicator');
-            if (indicator) indicator.style.opacity = '1';
+            if (indicator) {
+                indicator.style.opacity = '1';
+                indicator.style.background = 'rgba(0,0,0,0.7)';
+                indicator.innerHTML = '<span style="display:inline-block;width:6px;height:6px;background:#4CAF50;border-radius:50%;"></span> Menyinkronkan...';
+            }
 
             try {
-                const res = await fetch(`https://kvdb.io/TasyaLukmanJournal_v3/data`, {
-                    method: 'POST',
+                const res = await fetch(`https://kvdb.io/Wedding_TasyaLukman_2026/data`, {
+                    method: 'PUT', // Overwrite entire data
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ categories, items })
                 });
-                if (!res.ok) throw new Error('Upload failed');
+                if (!res.ok) throw new Error('Cek Koneksi');
             } catch (e) {
-                console.error('Auto-sync failed:', e);
+                console.error('Upload error:', e);
+                if (indicator) {
+                    indicator.style.background = '#C62828';
+                    indicator.textContent = 'Gagal Sinkron!';
+                }
             } finally {
                 if (indicator) setTimeout(() => indicator.style.opacity = '0', 2000);
             }
         }
 
-        async function handleDownloadCloud(customId = null) {
+        async function handleDownloadCloud() {
             try {
-                const res = await fetch(`https://kvdb.io/TasyaLukmanJournal_v3/data?t=${Date.now()}`, {
-                    cache: 'no-store'
-                });
+                const res = await fetch(`https://kvdb.io/Wedding_TasyaLukman_2026/data?t=${Date.now()}`);
                 if (!res.ok) return true;
+
                 const data = await res.json();
+                if (!data) return true;
 
-                if (data && (data.categories || data.items)) {
-                    const newDataStr = JSON.stringify(data);
-                    const oldDataStr = JSON.stringify({
-                        categories: JSON.parse(localStorage.getItem('seserahanCategories') || '[]'),
-                        items: JSON.parse(localStorage.getItem('seserahanItems') || '[]')
-                    });
+                const newDataStr = JSON.stringify({
+                    categories: data.categories || [],
+                    items: data.items || []
+                });
 
-                    if (newDataStr !== oldDataStr) {
-                        categories = data.categories || [];
-                        items = data.items || [];
-                        localStorage.setItem('seserahanCategories', JSON.stringify(categories));
-                        localStorage.setItem('seserahanItems', JSON.stringify(items));
-                        renderTable();
-                    }
+                const localDataStr = JSON.stringify({
+                    categories: JSON.parse(localStorage.getItem('seserahanCategories') || '[]'),
+                    items: JSON.parse(localStorage.getItem('seserahanItems') || '[]')
+                });
+
+                if (newDataStr !== localDataStr) {
+                    categories = data.categories || [];
+                    items = data.items || [];
+                    localStorage.setItem('seserahanCategories', JSON.stringify(categories));
+                    localStorage.setItem('seserahanItems', JSON.stringify(items));
+                    renderTable();
                 }
                 return true;
             } catch (e) {
-                console.error('Cloud load failed:', e);
+                console.error('Download error:', e);
                 return false;
             }
         }
