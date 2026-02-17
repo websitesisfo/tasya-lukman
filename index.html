@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Engagement Planning Journal</title>
+    <title>Daftar Seserahan Tasya</title>
     <meta name="description"
-        content="Aplikasi untuk mengelola daftar Engagement Planning Journal pernikahan dengan mudah dan terorganisir">
+        content="Aplikasi untuk mengelola daftar seserahan pernikahan dengan mudah dan terorganisir">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -1427,7 +1427,7 @@
             let categoryCounter = 1;
             let grandTotal = 0;
 
-            categories.forEach(category => {
+            categories.forEach((category, catIndex) => {
                 const categoryItems = items.filter(i => i.categoryId === category.id);
                 const rowSpan = categoryItems.length || 1;
                 let categoryTotal = 0;
@@ -1490,6 +1490,9 @@
                                 </td>
                             </tr>`;
                 }
+
+                // Add blank spacer row between categories for separation
+                html += `<tr class="spacer-row"><td colspan="10" style="height: 15px; border: none; background: transparent;"></td></tr>`;
             });
 
             if (categories.length > 0) {
@@ -1604,4 +1607,3 @@
 </body>
 
 </html>
-
