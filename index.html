@@ -1023,20 +1023,13 @@
         <div class="onboarding-card">
             <span class="onboarding-icon">☁️</span>
             <h2 class="onboarding-title">Selamat Datang!</h2>
-            <p>Pilih bagaimana Anda ingin memulai jurnal perencanaan pernikahan ini.</p>
+            <p>Silakan masukkan kode akses untuk masuk ke jurnal perencanaan.</p>
 
             <div class="onboarding-input-group">
-                <input type="text" id="onboardingSyncId" class="form-input" placeholder="Masukkan Kode Rahasia"
-                    style="text-align: center; font-family: monospace; margin-bottom: 10px;">
-                <button class="onboarding-btn" id="btnContinueSync"
-                    style="background: #2196F3; margin-bottom: 10px;">Lanjutkan dari HP Lain</button>
-                <div style="margin: 15px 0; color: #EEE; display: flex; align-items: center; justify-content: center;">
-                    <hr style="flex: 1; border: 0; border-top: 1px solid #EEE;">
-                    <span style="margin: 0 10px; color: #AAA; font-size: 0.7rem;">ATAU</span>
-                    <hr style="flex: 1; border: 0; border-top: 1px solid #EEE;">
-                </div>
-                <button class="onboarding-btn" id="btnStartFresh" style="background: var(--color-accent);">Mulai Jurnal
-                    Baru</button>
+                <input type="text" id="onboardingSyncId" class="form-input" placeholder="Masukkan Kode Akses"
+                    style="text-align: center; font-family: monospace; margin-bottom: 20px;">
+                <button class="onboarding-btn" id="btnAccessApp"
+                    style="background: #2196F3; font-weight: 800; letter-spacing: 0.1em;">MASUK KE JURNAL</button>
             </div>
 
             <div class="onboarding-footer">
@@ -1104,11 +1097,6 @@
             <button class="fab-menu-item" id="btnAddItem">
                 <span class="menu-icon">📦</span>
                 <span>Tambah Barang</span>
-            </button>
-            <button class="fab-menu-item" id="btnSyncCloud"
-                style="background: #1A1A1A; color: #FFEE8C; border: 1px solid #FFEE8C;">
-                <span class="menu-icon">☁️</span>
-                <span style="font-weight: 700;">Sinkronisasi</span>
             </button>
         </div>
     </div>
@@ -1197,44 +1185,6 @@
     </div>
 
     <!-- Modal: Cloud Sync -->
-    <div class="modal" id="modalSync">
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-            <button class="modal-close" data-modal="modalSync">×</button>
-            <div class="modal-header">
-                <h2 class="modal-title">Sinkronisasi Cloud</h2>
-                <p class="modal-subtitle">Gunakan ID yang sama di HP lain untuk sinkronisasi data</p>
-            </div>
-            <div class="modal-form">
-                <div class="form-group"
-                    style="background: #F9F9F9; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px dashed #D4AF37;">
-                    <label class="form-label" style="color: var(--color-accent);">🔑 STATUS SYNC:</label>
-                    <div id="currentSyncIdDisplay"
-                        style="font-family: monospace; font-size: 1.2rem; font-weight: 800; color: #1A1A1A; text-align: center; margin-top: 5px;">
-                        ••••••••</div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Update Kode Sync</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="syncIdInput" class="form-input" placeholder="Masukkan Kode"
-                            style="text-align: center; font-family: monospace;">
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
-                    <button class="btn-submit" id="btnUploadCloud" style="background: #4CAF50;">⬆️ Kirim
-                        Data</button>
-                    <button class="btn-submit" id="btnDownloadCloud" style="background: #2196F3;">⬇️ Ambil
-                        Data</button>
-                </div>
-                <p style="font-size: 0.7rem; color: #888; text-align: center; line-height: 1.4;">
-                    * <b>Kirim Data</b>: Mengirim data dari HP ini ke cloud.<br>
-                    * <b>Ambil Data</b>: Mengambil data dari cloud ke HP ini (data lama akan tertimpa).
-                </p>
-            </div>
-        </div>
-    </div>
 
     <footer class="footer">
         <p>&copy; 2026 <span>anggifebrinaaa</span></p>
@@ -1245,13 +1195,13 @@
 
     <script>
         // ===== Initialization Flow =====
+        const SESSION_ID = 'tasya-lukman';
+
         function initApp() {
             loadFromLocalStorage();
             renderTable();
             setupEventListeners();
-            updateSyncUI();
 
-            const hasData = categories.length > 0 || items.length > 0;
             const onboardingSkip = localStorage.getItem('onboardingSkip');
             const onboarding = document.getElementById('onboardingScreen');
             const intro = document.getElementById('introScreen');
@@ -1262,9 +1212,9 @@
             mainContainer.style.opacity = '0';
             fab.style.display = 'none';
 
-            if (hasData || onboardingSkip) {
+            if (onboardingSkip) {
                 onboarding.style.display = 'none';
-                hideIntro(2200); // Give enough time for subtitle reveal
+                handleDownloadCloud(SESSION_ID).then(() => hideIntro(2200));
             } else {
                 intro.style.display = 'none';
             }
@@ -1308,23 +1258,6 @@
             }, delay);
         }
 
-        function updateSyncUI() {
-            const sid = localStorage.getItem('seserahanSyncId');
-            const display = document.getElementById('currentSyncIdDisplay');
-            if (display) {
-                display.textContent = sid ? 'TERKONEKSI ✔️' : 'BELUM AKTIF ❌';
-                display.style.color = sid ? '#2E7D32' : '#C62828';
-                display.style.background = sid ? '#E8F5E9' : '#FFEBEE';
-                display.style.padding = '10px';
-                display.style.borderRadius = '8px';
-            }
-
-            const syncBtnLabel = document.querySelector('#btnSyncCloud span:last-child');
-            if (syncBtnLabel) {
-                syncBtnLabel.textContent = sid ? 'Cek Sinkronisasi' : 'Sinkronisasi';
-            }
-        }
-
         // ===== State Management =====
         let categories = [];
         let items = [];
@@ -1364,25 +1297,15 @@
                 fabMenu.classList.remove('active');
             });
 
-            document.getElementById('btnSyncCloud').addEventListener('click', () => {
-                openModal('modalSync');
-                fabMenu.classList.remove('active');
-                const savedId = localStorage.getItem('seserahanSyncId');
-                if (savedId) document.getElementById('syncIdInput').value = savedId;
-            });
+            // Onboarding Access
+            document.getElementById('btnAccessApp').addEventListener('click', async () => {
+                const code = document.getElementById('onboardingSyncId').value.trim().toLowerCase();
+                if (code !== SESSION_ID) {
+                    alert('Kode Akses Salah!');
+                    return;
+                }
 
-            // ID is now fixed to 'tasya-lukman'
-
-            document.getElementById('btnUploadCloud').onclick = handleUploadCloud;
-            document.getElementById('btnDownloadCloud').onclick = () => handleDownloadCloud();
-
-            // Onboarding Buttons
-            document.getElementById('btnStartFresh').addEventListener('click', proceedToApp);
-            document.getElementById('btnContinueSync').addEventListener('click', async () => {
-                const syncId = document.getElementById('onboardingSyncId').value.trim();
-                if (!syncId) { alert('Masukkan Sync ID terlebih dahulu!'); return; }
-
-                const success = await handleDownloadCloud(syncId);
+                const success = await handleDownloadCloud(SESSION_ID);
                 if (success) proceedToApp();
             });
 
@@ -1635,6 +1558,7 @@
         function saveToLocalStorage() {
             localStorage.setItem('seserahanCategories', JSON.stringify(categories));
             localStorage.setItem('seserahanItems', JSON.stringify(items));
+            handleUploadCloud(); // Auto sync
         }
 
         function loadFromLocalStorage() {
@@ -1652,34 +1576,27 @@
 
         // ===== Cloud Sync Core =====
         async function handleUploadCloud() {
-            const syncId = document.getElementById('syncIdInput').value.trim();
-            if (!syncId) { alert('Minta ID dulu!'); return; }
             try {
-                const res = await fetch(`https://kvdb.io/WeddingSync_${syncId}/data`, {
+                await fetch(`https://kvdb.io/WeddingSync_${SESSION_ID}/data`, {
                     method: 'POST',
                     body: JSON.stringify({ categories, items })
                 });
-                if (res.ok) showSuccessMessage('Data terkirim ke Cloud!');
-            } catch (e) { alert('Gagal koneksi.'); }
+            } catch (e) { console.error('Auto-sync failed'); }
         }
 
         async function handleDownloadCloud(customId = null) {
-            const syncId = customId || document.getElementById('syncIdInput').value.trim();
-            if (!syncId) { alert('Masukkan ID!'); return false; }
+            const syncId = customId || SESSION_ID;
             try {
                 const res = await fetch(`https://kvdb.io/WeddingSync_${syncId}/data`);
-                if (!res.ok) { alert('ID tidak ditemukan!'); return false; }
+                if (!res.ok) return true; // Start fresh if 404
                 const data = await res.json();
                 categories = data.categories || [];
                 items = data.items || [];
-                saveToLocalStorage();
+                localStorage.setItem('seserahanCategories', JSON.stringify(categories));
+                localStorage.setItem('seserahanItems', JSON.stringify(items));
                 renderTable();
-                localStorage.setItem('seserahanSyncId', syncId);
-                updateSyncUI();
-                showSuccessMessage('Data sinkron!');
-                closeModal('modalSync');
                 return true;
-            } catch (e) { alert('Gagal ambil data.'); return false; }
+            } catch (e) { alert('Gagal memuat data dari Cloud.'); return false; }
         }
     </script>
 </body>
