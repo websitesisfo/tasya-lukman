@@ -52,7 +52,10 @@
             color: var(--color-text-main);
             line-height: 1.6;
             min-height: 100vh;
-            padding: 40px 20px 120px;
+            padding: 40px 20px 0;
+            /* Removed bottom padding */
+            display: flex;
+            flex-direction: column;
         }
 
         .container {
@@ -624,30 +627,20 @@
         /* ===== Footer & Copyright ===== */
         .footer {
             text-align: center;
-            padding: 40px 0 60px;
+            padding: 40px 0 40px;
             color: var(--color-text-muted);
             font-family: 'Outfit', sans-serif;
             font-size: 0.85rem;
             letter-spacing: 0.1em;
+            margin-top: auto;
+            /* Push to bottom */
+            width: 100%;
         }
 
         .footer-heart {
             color: #e74c3c;
             display: inline-block;
             margin: 0 5px;
-            animation: heartBeat 1.5s infinite;
-        }
-
-        @keyframes heartBeat {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.2);
-            }
         }
 
         /* Subtle Total Style */
@@ -925,12 +918,6 @@
                 </tbody>
             </table>
         </div>
-
-        <footer class="footer">
-            <p>&copy; 2026 <span>anggifebrinaaa</span></p>
-            <p style="font-size: 0.65rem; margin-top: 10px; opacity: 0.5; text-transform: uppercase;">Engagement
-                Planning Journal Tasya <span class="footer-heart" style="font-size: 8px;">❤</span> Lukman</p>
-        </footer>
     </div>
 
     <!-- Floating Action Button -->
@@ -1033,6 +1020,12 @@
             </form>
         </div>
     </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 <span>anggifebrinaaa</span></p>
+        <p style="font-size: 0.65rem; margin-top: 10px; opacity: 0.5; text-transform: uppercase;">Engagement Planning
+            Journal Tasya <span class="footer-heart" style="font-size: 8px;">❤</span> Lukman</p>
+    </footer>
 
     <script>
         // ===== Intro Animation Logic =====
