@@ -1018,26 +1018,6 @@
 </head>
 
 <body onload="initApp()">
-    <!-- Onboarding / Cloud Sync Setup -->
-    <div id="onboardingScreen" class="onboarding-screen">
-        <div class="onboarding-card">
-            <span class="onboarding-icon">☁️</span>
-            <h2 class="onboarding-title">Selamat Datang!</h2>
-            <p>Silakan masukkan kode akses untuk masuk ke Engagement Planning Journal.</p>
-
-            <div class="onboarding-input-group">
-                <input type="text" id="onboardingSyncId" class="form-input" placeholder="Masukkan Kode Akses"
-                    style="text-align: center; font-family: monospace; margin-bottom: 20px;">
-                <button class="onboarding-btn" id="btnAccessApp"
-                    style="background: #2196F3; font-weight: 800; letter-spacing: 0.1em;">MASUK KE JURNAL</button>
-            </div>
-
-            <div class="onboarding-footer">
-                Engagement Planning Journal Tasya & Lukman
-            </div>
-        </div>
-    </div>
-
     <!-- Intro Splash Screen -->
     <div id="introScreen" class="intro-screen">
         <div class="ring-container">
@@ -1209,8 +1189,6 @@
             renderTable();
             setupEventListeners();
 
-            const onboardingSkip = sessionStorage.getItem('onboardingSkip');
-            const onboarding = document.getElementById('onboardingScreen');
             const intro = document.getElementById('introScreen');
             const mainContainer = document.querySelector('.container');
             const fab = document.querySelector('.fab-container');
@@ -1219,33 +1197,11 @@
             mainContainer.style.opacity = '0';
             fab.style.display = 'none';
 
-            if (onboardingSkip) {
-                onboarding.style.display = 'none';
-                // Wait for initial cloud data before showing the app
-                handleDownloadCloud().finally(() => {
-                    hideIntro(2200);
-                });
-            } else {
-                intro.style.display = 'none';
-            }
+            handleDownloadCloud().finally(() => {
+                hideIntro(2200);
+            });
         }
 
-        function proceedToApp() {
-            const onboarding = document.getElementById('onboardingScreen');
-            const intro = document.getElementById('introScreen');
-
-            sessionStorage.setItem('onboardingSkip', 'true');
-
-            // 1. Hide Onboarding
-            onboarding.classList.add('hidden');
-
-            setTimeout(() => {
-                onboarding.style.display = 'none';
-                // 2. Show and trigger Intro
-                intro.style.display = 'flex';
-                hideIntro();
-            }, 600);
-        }
 
         function hideIntro(delay = 2200) {
             const intro = document.getElementById('introScreen');
@@ -1305,18 +1261,6 @@
                 populateCategoryDropdown();
                 openModal('modalAddItem');
                 fabMenu.classList.remove('active');
-            });
-
-            // Onboarding Access
-            document.getElementById('btnAccessApp').addEventListener('click', async () => {
-                const code = document.getElementById('onboardingSyncId').value.trim().toLowerCase();
-                if (code !== SESSION_ID) {
-                    alert('Kode Akses Salah!');
-                    return;
-                }
-
-                const success = await handleDownloadCloud(SESSION_ID);
-                if (success) proceedToApp();
             });
 
             document.querySelectorAll('.modal-close').forEach(btn => {
@@ -1654,9 +1598,7 @@
 
         // Background Check every 5 seconds
         setInterval(() => {
-            if (sessionStorage.getItem('onboardingSkip')) {
-                handleDownloadCloud();
-            }
+            handleDownloadCloud();
         }, 5000);
     </script>
 </body>
