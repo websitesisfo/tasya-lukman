@@ -1023,7 +1023,7 @@
         <div class="onboarding-card">
             <span class="onboarding-icon">☁️</span>
             <h2 class="onboarding-title">Selamat Datang!</h2>
-            <p>Silakan masukkan kode akses untuk masuk ke jurnal perencanaan.</p>
+            <p>Silakan masukkan kode akses untuk masuk ke Engagement Planning Journal.</p>
 
             <div class="onboarding-input-group">
                 <input type="text" id="onboardingSyncId" class="form-input" placeholder="Masukkan Kode Akses"
@@ -1579,25 +1579,46 @@
             try {
                 await fetch(`https://kvdb.io/WeddingSync_${SESSION_ID}/data`, {
                     method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ categories, items })
                 });
-            } catch (e) { console.error('Auto-sync failed'); }
+            } catch (e) { console.error('Auto-sync failed:', e); }
         }
 
         async function handleDownloadCloud(customId = null) {
             const syncId = customId || SESSION_ID;
             try {
                 const res = await fetch(`https://kvdb.io/WeddingSync_${syncId}/data`);
-                if (!res.ok) return true; // Start fresh if 404
+                if (!res.ok) return true;
                 const data = await res.json();
-                categories = data.categories || [];
-                items = data.items || [];
-                localStorage.setItem('seserahanCategories', JSON.stringify(categories));
-                localStorage.setItem('seserahanItems', JSON.stringify(items));
-                renderTable();
+
+                // Only update and re-render if data is different or forced
+                const newDataStr = JSON.stringify(data);
+                const oldDataStr = JSON.stringify({
+                    categories: JSON.parse(localStorage.getItem('seserahanCategories') || '[]'),
+                    items: JSON.parse(localStorage.getItem('seserahanItems') || '[]')
+                });
+
+                if (newDataStr !== oldDataStr) {
+                    categories = data.categories || [];
+                    items = data.items || [];
+                    localStorage.setItem('seserahanCategories', JSON.stringify(categories));
+                    localStorage.setItem('seserahanItems', JSON.stringify(items));
+                    renderTable();
+                }
                 return true;
-            } catch (e) { alert('Gagal memuat data dari Cloud.'); return false; }
+            } catch (e) {
+                console.error('Cloud load failed:', e);
+                return false;
+            }
         }
+
+        // Auto-refresh every 30 seconds to stay in sync with other devices
+        setInterval(() => {
+            if (sessionStorage.getItem('onboardingSkip')) {
+                handleDownloadCloud();
+            }
+        }, 30000);
     </script>
 </body>
 
