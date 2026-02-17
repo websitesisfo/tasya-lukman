@@ -800,83 +800,168 @@
             .header-title {
                 font-size: 2.5rem;
             }
-
-            .intro-text {
-                font-size: 3.5rem;
-            }
         }
 
         @media (max-width: 768px) {
             body {
-                padding: 20px 10px 0;
+                padding: 15px 12px 0;
+                background: #FAFAFA;
             }
 
             .container {
                 padding: 0;
-                margin-top: 10px;
+                margin-top: 5px;
             }
 
             .header {
-                padding: 10px 20px;
-                border-radius: 20px;
+                padding: 8px 18px;
+                border-radius: 50px;
                 margin-bottom: 25px;
+                border: 1px solid rgba(0, 0, 0, 0.03);
             }
 
             .header-title {
-                font-size: 1.1rem;
+                font-size: 0.8rem;
+                letter-spacing: 0.12em;
             }
 
+            /* Table to Card Transformation for Mobile */
             .table-container {
-                border-radius: 0;
-                border-left: none;
-                border-right: none;
+                background: transparent;
+                box-shadow: none;
+                border: none;
+            }
+
+            .data-table thead {
+                display: none;
+            }
+
+            /* Hide headers on mobile */
+
+            .data-table,
+            .data-table tbody,
+            .data-table tr,
+            .data-table td {
+                display: block;
+                width: 100%;
             }
 
             .data-table {
-                min-width: 900px;
-                /* Still scrollable but more compact */
+                min-width: auto;
+            }
+
+            .data-table tr {
+                background: #fff;
+                border-radius: var(--radius-main);
+                margin-bottom: 15px;
+                box-shadow: var(--shadow-premium);
+                padding: 15px;
+                border: 1px solid #F0F0F0;
+                position: relative;
+            }
+
+            .category-header {
+                border-radius: 12px 12px 0 0;
+                margin: -15px -15px 15px -15px;
+                padding: 10px !important;
+                font-size: 0.75rem !important;
+                display: flex !important;
+                justify-content: space-between;
+                align-items: center;
+                background: var(--color-primary) !important;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            }
+
+            .no-col {
+                display: none;
+            }
+
+            .data-table td {
+                text-align: left !important;
+                padding: 6px 0 !important;
+                border: none !important;
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+                font-size: 0.8rem;
+            }
+
+            .data-table td::before {
+                content: attr(data-label);
+                font-size: 0.6rem;
+                font-weight: 800;
+                color: var(--color-text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
+            }
+
+            .data-table td.actions-cell {
+                flex-direction: row;
+                justify-content: flex-end;
+                border-top: 1px solid #F5F5F5 !important;
+                margin-top: 10px;
+                padding-top: 15px !important;
+                gap: 12px;
+            }
+
+            .total-row {
+                background: #FFEE8C !important;
+                font-weight: bold;
+                font-size: 0.75rem;
+            }
+
+            .grand-total-row {
+                background: var(--color-accent) !important;
+                color: #fff !important;
+                border-radius: 12px;
+            }
+
+            .grand-total-value {
+                color: var(--color-primary) !important;
             }
 
             .modal-content {
-                padding: 25px;
-                width: 95%;
-            }
-
-            .intro-text {
-                font-size: 3rem;
-            }
-
-            .fab-container {
-                bottom: 20px;
-                right: 20px;
+                width: 100%;
+                height: 100%;
+                border-radius: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
             }
         }
 
         @media (max-width: 480px) {
             body {
-                padding: 15px 5px 0;
+                padding: 12px 8px 0;
             }
 
             .header-title {
-                font-size: 0.9rem;
-                letter-spacing: 0.1em;
+                font-size: 0.75rem;
             }
 
             .intro-text {
-                font-size: 2.2rem;
+                font-size: 1.8rem;
             }
 
             .grand-total-value {
-                font-size: 1.1rem;
+                font-size: 1rem;
             }
 
             .grand-total-label {
-                font-size: 0.7rem;
+                font-size: 0.65rem;
+            }
+
+            .category-header {
+                font-size: 0.7rem !important;
+            }
+
+            .data-table td {
+                font-size: 0.75rem;
             }
 
             .fab-button {
-                width: 45px;
-                height: 45px;
+                width: 42px;
+                height: 42px;
             }
 
             .fab-icon {
@@ -1357,17 +1442,17 @@
                         <tr class="${rowGroupClass}">
                             ${index === 0 ? `<td class="no-col" rowspan="${rowSpan + 1}" style="background: #FFFDE7 !important;">${categoryCounter++}</td>` : ''}
                             ${index === 0 ? `<td class="category-header" rowspan="${rowSpan + 1}" style="background: #FFFDE7 !important;">${category.name}</td>` : ''}
-                            <td style="font-weight: 500;">${item.name}</td>
-                            <td>
+                            <td data-label="DETAIL" style="font-weight: 500;">${item.name}</td>
+                            <td data-label="STATUS">
                                 <div class="status-pill ${statusClass}">
                                     <span>${item.status || 'Belum'}</span>
                                 </div>
                             </td>
-                            <td>${vendorHTML}</td>
-                            <td class="amount"><span class="amount-prefix">Rp</span> ${formatCurrencyValue(item.cpp || 0)}</td>
-                            <td class="amount"><span class="amount-prefix">Rp</span> ${formatCurrencyValue(item.cpw || 0)}</td>
-                            <td class="amount" style="font-weight: 700; color: #1A1A1A;"><span class="amount-prefix">Rp</span> ${formatCurrencyValue(item.total || 0)}</td>
-                            <td style="font-size: 0.8rem; color: #666;">${item.note || '-'}</td>
+                            <td data-label="VENDOR / LINK">${vendorHTML}</td>
+                            <td data-label="CPP" class="amount"><span class="amount-prefix">Rp</span> ${formatCurrencyValue(item.cpp || 0)}</td>
+                            <td data-label="CPW" class="amount"><span class="amount-prefix">Rp</span> ${formatCurrencyValue(item.cpw || 0)}</td>
+                            <td data-label="TOTAL" class="amount" style="font-weight: 700; color: #1A1A1A;"><span class="amount-prefix">Rp</span> ${formatCurrencyValue(item.total || 0)}</td>
+                            <td data-label="KETERANGAN" style="font-size: 0.8rem; color: #666;">${item.note || '-'}</td>
                             <td class="actions-cell">
                                 <button class="btn-action" onclick="openEditItemModal('${item.id}')" title="Edit">✏️</button>
                                 <button class="btn-action" onclick="deleteItem('${item.id}')" title="Hapus">🗑️</button>
