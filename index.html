@@ -1101,6 +1101,13 @@
         </div>
     </div>
 
+    <div id="syncIndicator"
+        style="position: fixed; bottom: 85px; right: 25px; background: rgba(0,0,0,0.7); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.65rem; opacity: 0; transition: opacity 0.5s; pointer-events: none; z-index: 9999; display: flex; align-items: center; gap: 5px;">
+        <span
+            style="display: inline-block; width: 6px; height: 6px; background: #4CAF50; border-radius: 50%; opacity: 0.8;"></span>
+        Syncing...
+    </div>
+
     <!-- Modal: Add Category -->
     <div class="modal" id="modalAddCategory">
         <div class="modal-overlay"></div>
@@ -1576,35 +1583,45 @@
 
         // ===== Cloud Sync Core =====
         async function handleUploadCloud() {
+            const indicator = document.getElementById('syncIndicator');
+            if (indicator) indicator.style.opacity = '1';
+
             try {
-                await fetch(`https://kvdb.io/WeddingSync_${SESSION_ID}/data`, {
+                const res = await fetch(`https://kvdb.io/TasyaLukmanJournal_v3/data`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ categories, items })
                 });
-            } catch (e) { console.error('Auto-sync failed:', e); }
+                if (!res.ok) throw new Error('Upload failed');
+            } catch (e) {
+                console.error('Auto-sync failed:', e);
+            } finally {
+                if (indicator) setTimeout(() => indicator.style.opacity = '0', 2000);
+            }
         }
 
         async function handleDownloadCloud(customId = null) {
-            const syncId = customId || SESSION_ID;
             try {
-                const res = await fetch(`https://kvdb.io/WeddingSync_${syncId}/data`);
+                const res = await fetch(`https://kvdb.io/TasyaLukmanJournal_v3/data?t=${Date.now()}`, {
+                    cache: 'no-store'
+                });
                 if (!res.ok) return true;
                 const data = await res.json();
 
-                // Only update and re-render if data is different or forced
-                const newDataStr = JSON.stringify(data);
-                const oldDataStr = JSON.stringify({
-                    categories: JSON.parse(localStorage.getItem('seserahanCategories') || '[]'),
-                    items: JSON.parse(localStorage.getItem('seserahanItems') || '[]')
-                });
+                if (data && (data.categories || data.items)) {
+                    const newDataStr = JSON.stringify(data);
+                    const oldDataStr = JSON.stringify({
+                        categories: JSON.parse(localStorage.getItem('seserahanCategories') || '[]'),
+                        items: JSON.parse(localStorage.getItem('seserahanItems') || '[]')
+                    });
 
-                if (newDataStr !== oldDataStr) {
-                    categories = data.categories || [];
-                    items = data.items || [];
-                    localStorage.setItem('seserahanCategories', JSON.stringify(categories));
-                    localStorage.setItem('seserahanItems', JSON.stringify(items));
-                    renderTable();
+                    if (newDataStr !== oldDataStr) {
+                        categories = data.categories || [];
+                        items = data.items || [];
+                        localStorage.setItem('seserahanCategories', JSON.stringify(categories));
+                        localStorage.setItem('seserahanItems', JSON.stringify(items));
+                        renderTable();
+                    }
                 }
                 return true;
             } catch (e) {
@@ -1613,12 +1630,12 @@
             }
         }
 
-        // Auto-refresh every 30 seconds to stay in sync with other devices
+        // Auto-sync every 10 seconds
         setInterval(() => {
             if (sessionStorage.getItem('onboardingSkip')) {
                 handleDownloadCloud();
             }
-        }, 30000);
+        }, 10000);
     </script>
 </body>
 
