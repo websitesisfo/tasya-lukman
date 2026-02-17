@@ -62,6 +62,8 @@
             max-width: 1400px;
             margin: 0 auto;
             position: relative;
+            opacity: 0;
+            /* Hidden initially, shown in hideIntro() */
         }
 
         /* ===== Floating Glass Header ===== */
@@ -670,6 +672,93 @@
             color: var(--color-primary-dark);
         }
 
+        /* ===== Onboarding & Sync Setup ===== */
+        .onboarding-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+            padding: 20px;
+            transition: var(--transition-fluid);
+        }
+
+        .onboarding-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.05);
+        }
+
+        .onboarding-card {
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            background: #fff;
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.05);
+            border: 1px solid #F0F0F0;
+        }
+
+        .onboarding-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .onboarding-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--color-accent);
+            margin-bottom: 12px;
+        }
+
+        .onboarding-card p {
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .onboarding-input-group {
+            margin-bottom: 20px;
+        }
+
+        .onboarding-btn {
+            width: 100%;
+            background: var(--color-accent);
+            color: #fff;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: var(--transition-fluid);
+        }
+
+        .onboarding-btn:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .onboarding-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .onboarding-footer {
+            margin-top: 25px;
+            font-size: 0.75rem;
+            color: #AAA;
+        }
+
         /* ===== Intro Splash Screen ===== */
         .intro-screen {
             position: fixed;
@@ -930,7 +1019,34 @@
     </style>
 </head>
 
-<body onload="hideIntro()">
+<body onload="initApp()">
+    <!-- Onboarding / Cloud Sync Setup -->
+    <div id="onboardingScreen" class="onboarding-screen">
+        <div class="onboarding-card">
+            <span class="onboarding-icon">☁️</span>
+            <h2 class="onboarding-title">Selamat Datang!</h2>
+            <p>Pilih bagaimana Anda ingin memulai jurnal perencanaan pernikahan ini.</p>
+
+            <div class="onboarding-input-group">
+                <input type="text" id="onboardingSyncId" class="form-input" placeholder="Masukkan Sync ID (Jika ada)"
+                    style="text-align: center; font-family: monospace; margin-bottom: 10px;">
+                <button class="onboarding-btn" id="btnContinueSync"
+                    style="background: #2196F3; margin-bottom: 10px;">Lanjutkan dari HP Lain</button>
+                <div style="margin: 15px 0; color: #EEE; display: flex; align-items: center; justify-content: center;">
+                    <hr style="flex: 1; border: 0; border-top: 1px solid #EEE;">
+                    <span style="margin: 0 10px; color: #AAA; font-size: 0.7rem;">ATAU</span>
+                    <hr style="flex: 1; border: 0; border-top: 1px solid #EEE;">
+                </div>
+                <button class="onboarding-btn" id="btnStartFresh" style="background: var(--color-accent);">Mulai Jurnal
+                    Baru</button>
+            </div>
+
+            <div class="onboarding-footer">
+                Jurnal Perencanaan Tasya & Lukman
+            </div>
+        </div>
+    </div>
+
     <!-- Intro Splash Screen -->
     <div id="introScreen" class="intro-screen">
         <div class="ring-container">
@@ -1103,7 +1219,6 @@
                                 <button class="btn-submit" id="btnDownloadCloud" style="background: #2196F3;">⬇️ Ambil
                                     Data</button>
                             </div>
-
                             <p style="font-size: 0.7rem; color: #888; text-align: center; line-height: 1.4;">
                                 * <b>Kirim Data</b>: Mengirim data dari HP ini ke cloud.<br>
                                 * <b>Ambil Data</b>: Mengambil data dari cloud ke HP ini (data lama akan tertimpa).
@@ -1111,560 +1226,436 @@
                         </div>
                     </div>
                 </div>
+        </div>
+    </div>
 
-                <footer class="footer">
-                    <p>&copy; 2026 <span>anggifebrinaaa</span></p>
-                    <p style="font-size: 0.65rem; margin-top: 10px; opacity: 0.5; text-transform: uppercase;">Engagement
-                        Planning
-                        Journal Tasya <span class="footer-heart" style="font-size: 8px;">❤</span> Lukman</p>
-                </footer>
+    <footer class="footer">
+        <p>&copy; 2026 <span>anggifebrinaaa</span></p>
+        <p style="font-size: 0.65rem; margin-top: 10px; opacity: 0.5; text-transform: uppercase;">Engagement Planning
+            Journal Tasya <span class="footer-heart" style="font-size: 8px;">❤</span> Lukman</p>
+    </footer>
 
-                <script>
-                    // ===== Intro Animation Logic =====
-                    function hideIntro() {
-                        setTimeout(() => {
-                            const intro = document.getElementById('introScreen');
-                            if (intro) intro.classList.add('fade-out');
-                        }, 2500); // Tampilkan selama 2.5 detik
-                    }
-                    // ===== State Management =====
-                    let categories = [];
-                    let items = [];
-                    let isEditingCategory = false;
-                    let editingCategoryId = null;
-                    let isEditingItem = false;
-                    let editingItemId = null;
+    <script>
+        // ===== Initialization Flow =====
+        function initApp() {
+            loadFromLocalStorage();
+            renderTable();
+            setupEventListeners();
 
-                    // Load data from localStorage on page load
-                    document.addEventListener('DOMContentLoaded', () => {
-                        loadFromLocalStorage();
-                        renderTable();
-                        setupEventListeners();
+            const hasData = categories.length > 0 || items.length > 0;
+            const onboardingSkip = localStorage.getItem('onboardingSkip');
+            const onboarding = document.getElementById('onboardingScreen');
+            const intro = document.getElementById('introScreen');
+            const mainContainer = document.querySelector('.container');
+            const fab = document.querySelector('.fab-container');
+
+            // Hide main content initially
+            mainContainer.style.opacity = '0';
+            fab.style.display = 'none';
+
+            if (hasData || onboardingSkip) {
+                onboarding.style.display = 'none';
+                hideIntro();
+            } else {
+                intro.style.display = 'none';
+            }
+        }
+
+        function proceedToApp() {
+            const onboarding = document.getElementById('onboardingScreen');
+            const intro = document.getElementById('introScreen');
+
+            localStorage.setItem('onboardingSkip', 'true');
+
+            // 1. Hide Onboarding
+            onboarding.classList.add('hidden');
+
+            setTimeout(() => {
+                onboarding.style.display = 'none';
+                // 2. Show and trigger Intro
+                intro.style.display = 'flex';
+                hideIntro();
+            }, 600);
+        }
+
+        function hideIntro() {
+            const intro = document.getElementById('introScreen');
+            const mainContainer = document.querySelector('.container');
+            const fab = document.querySelector('.fab-container');
+
+            setTimeout(() => {
+                if (intro) intro.classList.add('fade-out');
+
+                // Show core app
+                mainContainer.style.opacity = '1';
+                mainContainer.style.transition = 'opacity 1s ease';
+                fab.style.display = 'block';
+
+                setTimeout(() => {
+                    if (intro) intro.style.display = 'none';
+                }, 1000);
+            }, 2500);
+        }
+
+        // ===== State Management =====
+        let categories = [];
+        let items = [];
+        let isEditingCategory = false;
+        let editingCategoryId = null;
+        let isEditingItem = false;
+        let editingItemId = null;
+
+        // ===== Event Listeners Setup =====
+        function setupEventListeners() {
+            const fabButton = document.getElementById('fabButton');
+            const fabMenu = document.getElementById('fabMenu');
+
+            fabButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fabMenu.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.fab-container')) {
+                    fabMenu.classList.remove('active');
+                }
+            });
+
+            document.getElementById('btnAddCategory').addEventListener('click', () => {
+                openModal('modalAddCategory');
+                fabMenu.classList.remove('active');
+            });
+
+            document.getElementById('btnAddItem').addEventListener('click', () => {
+                if (categories.length === 0) {
+                    alert('Silakan buat kategori terlebih dahulu!');
+                    return;
+                }
+                populateCategoryDropdown();
+                openModal('modalAddItem');
+                fabMenu.classList.remove('active');
+            });
+
+            document.getElementById('btnSyncCloud').addEventListener('click', () => {
+                openModal('modalSync');
+                fabMenu.classList.remove('active');
+                const savedId = localStorage.getItem('seserahanSyncId');
+                if (savedId) document.getElementById('syncIdInput').value = savedId;
+            });
+
+            document.getElementById('btnGenerateId').addEventListener('click', () => {
+                const newId = 'TSY-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+                document.getElementById('syncIdInput').value = newId;
+                localStorage.setItem('seserahanSyncId', newId);
+            });
+
+            document.getElementById('btnUploadCloud').onclick = handleUploadCloud;
+            document.getElementById('btnDownloadCloud').onclick = () => handleDownloadCloud();
+
+            // Onboarding Buttons
+            document.getElementById('btnStartFresh').addEventListener('click', proceedToApp);
+            document.getElementById('btnContinueSync').addEventListener('click', async () => {
+                const syncId = document.getElementById('onboardingSyncId').value.trim();
+                if (!syncId) { alert('Masukkan Sync ID terlebih dahulu!'); return; }
+
+                const success = await handleDownloadCloud(syncId);
+                if (success) proceedToApp();
+            });
+
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', () => closeModal(btn.dataset.modal));
+            });
+
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', () => closeModal(overlay.parentElement.id));
+            });
+
+            document.getElementById('categoryForm').addEventListener('submit', handleCategorySubmit);
+            document.getElementById('itemForm').addEventListener('submit', handleItemSubmit);
+
+            const priceInputs = ['itemCPP', 'itemCPW'];
+            priceInputs.forEach(id => {
+                document.getElementById(id).addEventListener('input', calculateTotal);
+            });
+
+            updateAddItemButtonState();
+        }
+
+        function calculateTotal() {
+            const cpp = parseFloat(document.getElementById('itemCPP').value) || 0;
+            const cpw = parseFloat(document.getElementById('itemCPW').value) || 0;
+            document.getElementById('itemTotal').value = cpp + cpw;
+        }
+
+        // ===== Modal Functions =====
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+
+            if (modalId === 'modalAddCategory') {
+                document.getElementById('categoryForm').reset();
+                isEditingCategory = false;
+                editingCategoryId = null;
+                document.querySelector('#modalAddCategory .modal-title').textContent = 'Tambah Kategori';
+                document.getElementById('categorySubmitBtn').textContent = 'Simpan Kategori';
+            } else if (modalId === 'modalAddItem') {
+                document.getElementById('itemForm').reset();
+                isEditingItem = false;
+                editingItemId = null;
+                document.querySelector('#modalAddItem .modal-title').textContent = 'Detail Barang';
+                document.getElementById('itemSubmitBtn').textContent = 'Simpan Item Baru';
+            }
+        }
+
+        // ===== Category Functions =====
+        function openEditCategoryModal(categoryId) {
+            const category = categories.find(c => c.id === categoryId);
+            if (!category) return;
+            isEditingCategory = true;
+            editingCategoryId = categoryId;
+            document.getElementById('categoryName').value = category.name;
+            document.querySelector('#modalAddCategory .modal-title').textContent = 'Edit Kategori';
+            document.getElementById('categorySubmitBtn').textContent = 'Simpan Perubahan';
+            openModal('modalAddCategory');
+        }
+
+        function handleCategorySubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('categoryName').value.trim();
+            if (isEditingCategory) {
+                const category = categories.find(c => c.id === editingCategoryId);
+                if (category) category.name = name;
+            } else {
+                categories.push({
+                    id: Date.now().toString(), name: name, createdAt: new Date().toISOString()
+                });
+            }
+            saveToLocalStorage();
+            renderTable();
+            updateAddItemButtonState();
+            closeModal('modalAddCategory');
+            showSuccessMessage('Berhasil disimpan!');
+        }
+
+        function deleteCategory(categoryId) {
+            if (confirm('Yakin ingin menghapus kategori ini dan SEMUA barang di dalamnya?')) {
+                categories = categories.filter(c => c.id !== categoryId);
+                items = items.filter(i => i.categoryId !== categoryId);
+                saveToLocalStorage();
+                renderTable();
+                updateAddItemButtonState();
+                showSuccessMessage('Kategori dihapus.');
+            }
+        }
+
+        // ===== Item Functions =====
+        function openEditItemModal(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+            isEditingItem = true;
+            editingItemId = itemId;
+            populateCategoryDropdown();
+            document.getElementById('itemCategory').value = item.categoryId;
+            document.getElementById('itemName').value = item.name;
+            document.getElementById('itemStatus').value = item.status || 'Belum';
+            document.getElementById('itemVendor').value = item.vendor || '';
+            document.getElementById('itemCPP').value = item.cpp || 0;
+            document.getElementById('itemCPW').value = item.cpw || 0;
+            document.getElementById('itemNote').value = item.note || '';
+            calculateTotal();
+            document.querySelector('#modalAddItem .modal-title').textContent = 'Edit Barang';
+            document.getElementById('itemSubmitBtn').textContent = 'Simpan Perubahan';
+            openModal('modalAddItem');
+        }
+
+        function handleItemSubmit(e) {
+            e.preventDefault();
+            const itemData = {
+                categoryId: document.getElementById('itemCategory').value,
+                name: document.getElementById('itemName').value,
+                status: document.getElementById('itemStatus').value,
+                vendor: document.getElementById('itemVendor').value,
+                cpp: parseFloat(document.getElementById('itemCPP').value) || 0,
+                cpw: parseFloat(document.getElementById('itemCPW').value) || 0,
+                total: parseFloat(document.getElementById('itemTotal').value) || 0,
+                note: document.getElementById('itemNote').value
+            };
+            if (isEditingItem) {
+                const index = items.findIndex(i => i.id === editingItemId);
+                if (index !== -1) items[index] = { ...items[index], ...itemData };
+            } else {
+                items.push({ id: Date.now().toString(), ...itemData, createdAt: new Date().toISOString() });
+            }
+            saveToLocalStorage();
+            renderTable();
+            closeModal('modalAddItem');
+            showSuccessMessage('Barang berhasil disimpan!');
+        }
+
+        function deleteItem(itemId) {
+            if (confirm('Hapus barang ini?')) {
+                items = items.filter(i => i.id !== itemId);
+                saveToLocalStorage();
+                renderTable();
+                showSuccessMessage('Barang dihapus.');
+            }
+        }
+
+        function populateCategoryDropdown() {
+            const select = document.getElementById('itemCategory');
+            select.innerHTML = '<option value="">Pilih Kategori</option>' +
+                categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+
+        function updateAddItemButtonState() {
+            document.getElementById('btnAddItem').disabled = categories.length === 0;
+        }
+
+        // ===== Table Rendering =====
+        function renderTable() {
+            const tableBody = document.getElementById('tableBody');
+            let html = '';
+            let categoryCounter = 1;
+            let grandTotal = 0;
+
+            categories.forEach(category => {
+                const categoryItems = items.filter(i => i.categoryId === category.id);
+                const rowSpan = categoryItems.length || 1;
+                let categoryTotal = 0;
+
+                if (categoryItems.length === 0) {
+                    html += `<tr>
+                                <td class="no-col">${categoryCounter++}</td>
+                                <td class="category-header">${category.name}</td>
+                                <td colspan="7" style="color: #999; font-style: italic;">Belum ada barang</td>
+                                <td class="actions-cell">
+                                    <button class="btn-action"
+                                        onclick="openEditCategoryModal('${category.id}')">✏️</button>
+                                    <button class="btn-action" onclick="deleteCategory('${category.id}')">🗑️</button>
+                                </td>
+                            </tr>`;
+                } else {
+                    categoryItems.forEach((item, index) => {
+                        categoryTotal += item.total;
+                        grandTotal += item.total;
+                        const statusClass = item.status === 'Lunas' ? 'status-lunas' : item.status === 'DP' ?
+                            'status-dp' : 'status-belum';
+                        let vendorHTML = item.vendor || '-';
+                        if (item.vendor && (item.vendor.startsWith('http') || item.vendor.includes('www.'))) {
+                            const url = item.vendor.startsWith('http') ? item.vendor : `https://${item.vendor}`;
+                            vendorHTML = `<a href="${url}" target="_blank"
+                                style="color: #D4AF37; font-weight: 700;">LINK</a>`;
+                        }
+
+                        html += `<tr>
+                                ${index === 0 ? `<td class="no-col" rowspan="${rowSpan + 1}">${categoryCounter++}</td>`
+                                : ''}
+                                ${index === 0 ? `<td class="category-header" rowspan="${rowSpan + 1}">${category.name}
+                                </td>` : ''}
+                                <td data-label="DETAIL">${item.name}</td>
+                                <td data-label="STATUS">
+                                    <div class="status-pill ${statusClass}">${item.status}</div>
+                                </td>
+                                <td data-label="VENDOR">${vendorHTML}</td>
+                                <td data-label="CPP" class="amount">Rp ${formatCurrencyValue(item.cpp)}</td>
+                                <td data-label="CPW" class="amount">Rp ${formatCurrencyValue(item.cpw)}</td>
+                                <td data-label="TOTAL" class="amount" style="font-weight: 800;">Rp
+                                    ${formatCurrencyValue(item.total)}</td>
+                                <td data-label="KET" style="font-size: 0.75rem;">${item.note || '-'}</td>
+                                <td class="actions-cell">
+                                    <button class="btn-action" onclick="openEditItemModal('${item.id}')">✏️</button>
+                                    <button class="btn-action" onclick="deleteItem('${item.id}')">🗑️</button>
+                                </td>
+                            </tr>`;
                     });
-
-                    // ===== Event Listeners Setup =====
-                    function setupEventListeners() {
-                        // FAB button toggle
-                        const fabButton = document.getElementById('fabButton');
-                        const fabMenu = document.getElementById('fabMenu');
-
-                        fabButton.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            fabMenu.classList.toggle('active');
-                        });
-
-                        // Close FAB menu when clicking outside
-                        document.addEventListener('click', (e) => {
-                            if (!e.target.closest('.fab-container')) {
-                                fabMenu.classList.remove('active');
-                            }
-                        });
-
-                        // FAB menu items
-                        document.getElementById('btnAddCategory').addEventListener('click', () => {
-                            openModal('modalAddCategory');
-                            fabMenu.classList.remove('active');
-                        });
-
-                        document.getElementById('btnAddItem').addEventListener('click', () => {
-                            if (categories.length === 0) {
-                                alert('Silakan buat kategori terlebih dahulu sebelum menambah barang!');
-                                return;
-                            }
-                            populateCategoryDropdown();
-                            openModal('modalAddItem');
-                            fabMenu.classList.remove('active');
-                        });
-
-                        document.getElementById('btnSyncCloud').addEventListener('click', () => {
-                            openModal('modalSync');
-                            fabMenu.classList.remove('active');
-                            // Load existing ID from local storage if any
-                            const savedId = localStorage.getItem('seserahanSyncId');
-                            if (savedId) document.getElementById('syncIdInput').value = savedId;
-                        });
-
-                        document.getElementById('btnGenerateId').addEventListener('click', () => {
-                            const newId = 'TSY-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-                            document.getElementById('syncIdInput').value = newId;
-                            localStorage.setItem('seserahanSyncId', newId);
-                        });
-
-                        document.getElementById('btnUploadCloud').addEventListener('submit', (e) => e.preventDefault());
-                        document.getElementById('btnDownloadCloud').addEventListener('submit', (e) => e.preventDefault());
-
-                        document.getElementById('btnUploadCloud').onclick = handleUploadCloud;
-                        document.getElementById('btnDownloadCloud').onclick = handleDownloadCloud;
-
-                        // Modal close buttons
-                        document.querySelectorAll('.modal-close').forEach(btn => {
-                            btn.addEventListener('click', () => {
-                                closeModal(btn.dataset.modal);
-                            });
-                        });
-
-                        // Modal overlay clicks
-                        document.querySelectorAll('.modal-overlay').forEach(overlay => {
-                            overlay.addEventListener('click', () => {
-                                closeModal(overlay.parentElement.id);
-                            });
-                        });
-
-                        // Category form submission
-                        document.getElementById('categoryForm').addEventListener('submit', handleCategorySubmit);
-
-                        // Item form submission
-                        document.getElementById('itemForm').addEventListener('submit', handleItemSubmit);
-
-                        // Auto-calculate Total
-                        const priceInputs = ['itemCPP', 'itemCPW'];
-                        priceInputs.forEach(id => {
-                            document.getElementById(id).addEventListener('input', calculateTotal);
-                        });
-
-                        // Update "Tambah Barang" button state
-                        updateAddItemButtonState();
-                    }
-
-                    function calculateTotal() {
-                        const cpp = parseFloat(document.getElementById('itemCPP').value) || 0;
-                        const cpw = parseFloat(document.getElementById('itemCPW').value) || 0;
-                        document.getElementById('itemTotal').value = cpp + cpw;
-                    }
-
-                    // ===== Modal Functions =====
-                    function openModal(modalId) {
-                        const modal = document.getElementById(modalId);
-                        modal.classList.add('active');
-                        document.body.style.overflow = 'hidden';
-                    }
-
-                    function closeModal(modalId) {
-                        const modal = document.getElementById(modalId);
-                        modal.classList.remove('active');
-                        document.body.style.overflow = '';
-
-                        // Reset forms and edit state
-                        if (modalId === 'modalAddCategory') {
-                            document.getElementById('categoryForm').reset();
-                            isEditingCategory = false;
-                            editingCategoryId = null;
-                            document.querySelector('#modalAddCategory .modal-title').textContent = 'Tambah Kategori';
-                            document.getElementById('categorySubmitBtn').textContent = 'Simpan Kategori';
-                        } else if (modalId === 'modalAddItem') {
-                            document.getElementById('itemForm').reset();
-                            isEditingItem = false;
-                            editingItemId = null;
-                            document.querySelector('#modalAddItem .modal-title').textContent = 'Detail Barang';
-                            document.getElementById('itemSubmitBtn').textContent = 'Simpan Item Baru';
-                        }
-                    }
-
-                    // ===== Category Functions =====
-                    function openEditCategoryModal(categoryId) {
-                        const category = categories.find(c => c.id === categoryId);
-                        if (!category) return;
-
-                        isEditingCategory = true;
-                        editingCategoryId = categoryId;
-
-                        document.getElementById('categoryName').value = category.name;
-                        document.querySelector('#modalAddCategory .modal-title').textContent = 'Edit Kategori';
-                        document.getElementById('categorySubmitBtn').textContent = 'Simpan Perubahan';
-
-                        openModal('modalAddCategory');
-                    }
-
-                    function handleCategorySubmit(e) {
-                        e.preventDefault();
-
-                        const name = document.getElementById('categoryName').value.trim();
-
-                        if (isEditingCategory) {
-                            const category = categories.find(c => c.id === editingCategoryId);
-                            if (category) {
-                                category.name = name;
-                                showSuccessMessage('Kategori berhasil diperbarui!');
-                            }
-                        } else {
-                            const newCategory = {
-                                id: Date.now().toString(),
-                                name: name,
-                                createdAt: new Date().toISOString()
-                            };
-                            categories.push(newCategory);
-                            showSuccessMessage('Kategori berhasil ditambahkan!');
-                        }
-
-                        saveToLocalStorage();
-                        renderTable();
-                        updateAddItemButtonState();
-                        closeModal('modalAddCategory');
-                    }
-
-                    function deleteCategory(categoryId) {
-                        const category = categories.find(c => c.id === categoryId);
-                        const categoryItems = items.filter(i => i.categoryId === categoryId);
-
-                        let confirmMessage = `Apakah Anda yakin ingin menghapus kategori "${category.name}"?`;
-                        if (categoryItems.length > 0) {
-                            confirmMessage += `\n\nKategori ini memiliki ${categoryItems.length} barang yang akan ikut terhapus.`;
-                        }
-
-                        if (confirm(confirmMessage)) {
-                            categories = categories.filter(c => c.id !== categoryId);
-                            items = items.filter(i => i.categoryId !== categoryId);
-                            saveToLocalStorage();
-                            renderTable();
-                            updateAddItemButtonState();
-                        }
-                    }
-
-                    // ===== Item Functions =====
-                    function openEditItemModal(itemId) {
-                        const item = items.find(i => i.id === itemId);
-                        if (!item) return;
-
-                        isEditingItem = true;
-                        editingItemId = itemId;
-
-                        populateCategoryDropdown();
-                        document.getElementById('itemCategory').value = item.categoryId;
-                        document.getElementById('itemName').value = item.name;
-                        document.getElementById('itemStatus').value = item.status;
-                        document.getElementById('itemVendor').value = item.vendor || '';
-                        document.getElementById('itemCPP').value = item.cpp || 0;
-                        document.getElementById('itemCPW').value = item.cpw || 0;
-                        document.getElementById('itemTotal').value = item.total || 0;
-                        document.getElementById('itemNote').value = item.note || '';
-
-                        document.querySelector('#modalAddItem .modal-title').textContent = 'Edit Item';
-                        document.getElementById('itemSubmitBtn').textContent = 'Simpan Perubahan';
-
-                        openModal('modalAddItem');
-                    }
-
-                    function handleItemSubmit(e) {
-                        e.preventDefault();
-
-                        const categoryId = document.getElementById('itemCategory').value;
-                        const name = document.getElementById('itemName').value.trim();
-                        const status = document.getElementById('itemStatus').value;
-                        const vendor = document.getElementById('itemVendor').value.trim();
-                        const cpp = parseFloat(document.getElementById('itemCPP').value) || 0;
-                        const cpw = parseFloat(document.getElementById('itemCPW').value) || 0;
-                        const total = parseFloat(document.getElementById('itemTotal').value) || 0;
-                        const note = document.getElementById('itemNote').value.trim();
-
-                        if (isEditingItem) {
-                            const item = items.find(i => i.id === editingItemId);
-                            if (item) {
-                                item.categoryId = categoryId;
-                                item.name = name;
-                                item.status = status;
-                                item.vendor = vendor;
-                                item.cpp = cpp;
-                                item.cpw = cpw;
-                                item.total = total;
-                                item.note = note;
-                                showSuccessMessage('Barang berhasil diperbarui!');
-                            }
-                        } else {
-                            const newItem = {
-                                id: Date.now().toString(),
-                                categoryId: categoryId,
-                                name: name,
-                                status: status,
-                                vendor: vendor,
-                                cpp: cpp,
-                                cpw: cpw,
-                                total: total,
-                                note: note,
-                                createdAt: new Date().toISOString()
-                            };
-                            items.push(newItem);
-                            showSuccessMessage('Barang berhasil ditambahkan!');
-                        }
-
-                        saveToLocalStorage();
-                        renderTable();
-                        closeModal('modalAddItem');
-                    }
-
-                    function deleteItem(itemId) {
-                        if (confirm('Apakah Anda yakin ingin menghapus barang ini?')) {
-                            items = items.filter(i => i.id !== itemId);
-                            saveToLocalStorage();
-                            renderTable();
-                        }
-                    }
-
-                    // ===== Render Functions =====
-                    function renderTable() {
-                        const tableBody = document.getElementById('tableBody');
-
-                        if (categories.length === 0) {
-                            tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 40px;">Belum ada kategori. Silakan tambah kategori terlebih dahulu.</td></tr>`;
-                            return;
-                        }
-
-                        let html = '';
-                        let categoryCounter = 1;
-
-                        let grandTotal = 0;
-                        categories.forEach((category) => {
-                            const categoryItems = items.filter(item => item.categoryId === category.id);
-
-                            // Sort items within category if needed
-                            const itemsToRender = [...categoryItems].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-
-                            if (itemsToRender.length === 0) {
-                                // Render an empty row for categories with no items to match spreadsheet look
-                                html += `
-                        <tr>
-                            <td class="no-col">${categoryCounter++}</td>
-                            <td class="category-header">${category.name}</td>
-                            <td colspan="7" style="text-align: center; color: #999; font-style: italic;">Belum ada data barang</td>
-                            <td class="actions-cell">
-                                <button class="btn-action" onclick="openEditCategoryModal('${category.id}')" title="Edit Kategori">✏️</button>
-                                <button class="btn-action" onclick="deleteCategory('${category.id}')" title="Hapus Kategori">🗑️</button>
-                            </td>
-                        </tr>
-                    `;
-                                return;
-                            }
-
-                            const rowSpan = itemsToRender.length;
-                            let categoryTotal = 0;
-
-                            categoryItems.forEach((item, index) => {
-                                const statusClass = item.status ? `status-${item.status.toLowerCase()}` : 'status-belum';
-                                const itemTotal = (item.total || 0);
-                                categoryTotal += itemTotal;
-                                grandTotal += itemTotal;
-
-                                let vendorHTML = item.vendor || '-';
-                                if (item.vendor && (item.vendor.startsWith('http') || item.vendor.includes('www.'))) {
-                                    const url = item.vendor.startsWith('http') ? item.vendor : `https://${item.vendor}`;
-                                    vendorHTML = `<div style="text-align: center;"><a href="${url}" target="_blank" style="color: #D4AF37; font-weight: 700; text-decoration: none; border: 1px solid #D4AF37; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; display: inline-block;">BELI DISINI</a></div>`;
-                                }
-
-                                // Add a class to rows for styling category groups
-                                const rowGroupClass = index === 0 ? 'category-first-row' : '';
-
-                                html += `
-                        <tr class="${rowGroupClass}">
-                            ${index === 0 ? `<td class="no-col" rowspan="${rowSpan + 1}" style="background: #FFFDE7 !important;">${categoryCounter++}</td>` : ''}
-                            ${index === 0 ? `<td class="category-header" rowspan="${rowSpan + 1}" style="background: #FFFDE7 !important;">${category.name}</td>` : ''}
-                            <td data-label="DETAIL" style="font-weight: 500;">${item.name}</td>
-                            <td data-label="STATUS">
-                                <div class="status-pill ${statusClass}">
-                                    <span>${item.status || 'Belum'}</span>
-                                </div>
-                            </td>
-                            <td data-label="VENDOR / LINK">${vendorHTML}</td>
-                            <td data-label="CPP" class="amount"><span class="amount-prefix">Rp</span> ${formatCurrencyValue(item.cpp || 0)}</td>
-                            <td data-label="CPW" class="amount"><span class="amount-prefix">Rp</span> ${formatCurrencyValue(item.cpw || 0)}</td>
-                            <td data-label="TOTAL" class="amount" style="font-weight: 700; color: #1A1A1A;"><span class="amount-prefix">Rp</span> ${formatCurrencyValue(item.total || 0)}</td>
-                            <td data-label="KETERANGAN" style="font-size: 0.8rem; color: #666;">${item.note || '-'}</td>
-                            <td class="actions-cell">
-                                <button class="btn-action" onclick="openEditItemModal('${item.id}')" title="Edit">✏️</button>
-                                <button class="btn-action" onclick="deleteItem('${item.id}')" title="Hapus">🗑️</button>
-                            </td>
-                        </tr>
-                    `;
-                            });
-
-                            // Add Total row for this category
-                            html += `
-                    <tr class="total-row">
-                        <td class="total-label" colspan="3">Total</td>
-                        <td class="amount" colspan="3" style="background: transparent !important; border-left: none;"><span class="amount-prefix">Rp</span> ${formatCurrencyValue(categoryTotal)}</td>
-                        <td colspan="2" class="actions-cell"></td>
-                    </tr>
-                `;
-                        });
-
-                        // Add Grand Total row
-                        html += `
-                <tr class="grand-total-row">
-                    <td colspan="5" class="grand-total-label">Total Keseluruhan</td>
-                    <td colspan="3" class="grand-total-value">Rp ${formatCurrencyValue(grandTotal)}</td>
-                    <td colspan="2"></td>
-                </tr>
-            `;
-
-                        tableBody.innerHTML = html;
-                    }
-
-                    function formatCurrencyValue(amount) {
-                        return new Intl.NumberFormat('id-ID', {
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0
-                        }).format(amount);
-                    }
-
-                    function populateCategoryDropdown() {
-                        const select = document.getElementById('itemCategory');
-                        select.innerHTML = '<option value="">Pilih Kategori</option>' +
-                            categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
-                    }
-
-                    // ===== Summary Logic (Disabled - now in table) =====
-                    function updateSummary() {
-                        // No longer needed
-                    }
-
-                    function updateAddItemButtonState() {
-                        const btnAddItem = document.getElementById('btnAddItem');
-                        if (categories.length === 0) {
-                            btnAddItem.disabled = true;
-                            btnAddItem.style.opacity = '0.5';
-                        } else {
-                            btnAddItem.disabled = false;
-                            btnAddItem.style.opacity = '1';
-                        }
-                    }
-
-                    // ===== Utility Functions =====
-                    function formatCurrency(amount) {
-                        return new Intl.NumberFormat('id-ID', {
-                            style: 'currency',
-                            currency: 'IDR',
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0
-                        }).format(amount);
-                    }
-
-                    function saveToLocalStorage() {
-                        localStorage.setItem('seserahanCategories', JSON.stringify(categories));
-                        localStorage.setItem('seserahanItems', JSON.stringify(items));
-                    }
-
-                    function loadFromLocalStorage() {
-                        const storedCategories = localStorage.getItem('seserahanCategories');
-                        const storedItems = localStorage.getItem('seserahanItems');
-
-                        if (storedCategories) {
-                            try {
-                                categories = JSON.parse(storedCategories);
-                            } catch (e) {
-                                console.error('Error loading categories:', e);
-                                categories = [];
-                            }
-                        }
-
-                        if (storedItems) {
-                            try {
-                                items = JSON.parse(storedItems);
-                            } catch (e) {
-                                console.error('Error loading items:', e);
-                                items = [];
-                            }
-                        }
-                    }
-
-                    function showSuccessMessage(message) {
-                        const notification = document.createElement('div');
-                        notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
-                color: white;
-                padding: 1rem 1.5rem;
-                border-radius: 12px;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-                z-index: 3000;
-                animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s;
-                font-family: var(--font-body);
-                font-weight: 600;
-            `;
-                        notification.textContent = `✓ ${message}`;
-
-                        document.body.appendChild(notification);
-
-                        setTimeout(() => {
-                            notification.remove();
-                        }, 3000);
-                    }
-
-                    // ===== Cloud Sync Functions =====
-                    async function handleUploadCloud() {
-                        const syncId = document.getElementById('syncIdInput').value.trim();
-                        if (!syncId) { alert('Masukkan Sync ID terlebih dahulu!'); return; }
-
-                        const btn = document.getElementById('btnUploadCloud');
-                        const originalText = btn.textContent;
-                        btn.textContent = 'Mengirim...';
-                        btn.disabled = true;
-
-                        try {
-                            const data = { categories, items, timestamp: new Date().toISOString() };
-
-                            // Using kvdb.io for simple, no-setup synchronization
-                            const response = await fetch(`https://kvdb.io/WeddingSync_${syncId}/data`, {
-                                method: 'POST',
-                                body: JSON.stringify(data)
-                            });
-
-                            if (response.ok) {
-                                localStorage.setItem('seserahanSyncId', syncId);
-                                showSuccessMessage('Data berhasil dikirim ke Cloud!');
-                            } else {
-                                throw new Error('Gagal mengirim data.');
-                            }
-                        } catch (error) {
-                            console.error(error);
-                            alert('Gagal mengirim data. Pastikan koneksi internet aktif.');
-                        } finally {
-                            btn.textContent = originalText;
-                            btn.disabled = false;
-                        }
-                    }
-
-                    async function handleDownloadCloud() {
-                        const syncId = document.getElementById('syncIdInput').value.trim();
-                        if (!syncId) { alert('Masukkan Sync ID terlebih dahulu!'); return; }
-
-                        if (!confirm('Peringatan: Data yang ada di HP ini akan ditimpa dengan data dari Cloud. Lanjutkan?')) return;
-
-                        const btn = document.getElementById('btnDownloadCloud');
-                        const originalText = btn.textContent;
-                        btn.textContent = 'Mengambil...';
-                        btn.disabled = true;
-
-                        try {
-                            const response = await fetch(`https://kvdb.io/WeddingSync_${syncId}/data`);
-                            if (!response.ok) {
-                                if (response.status === 404) {
-                                    alert('ID tidak ditemukan di Cloud. Pastikan HP utama sudah melakukan "Kirim Data" terlebih dahulu.');
-                                } else {
-                                    throw new Error('Gagal terhubung ke server.');
-                                }
-                                return;
-                            }
-
-                            const cloudData = await response.json();
-
-                            if (cloudData) {
-                                categories = cloudData.categories || [];
-                                items = cloudData.items || [];
-                                saveToLocalStorage();
-                                renderTable();
-                                localStorage.setItem('seserahanSyncId', syncId);
-                                showSuccessMessage('Data Cloud berhasil disinkronkan ke HP ini!');
-                                closeModal('modalSync');
-                            }
-                        } catch (error) {
-                            console.error(error);
-                            alert('Gagal mengambil data. Pastikan ID benar dan koneksi internet aktif.');
-                        } finally {
-                            btn.textContent = originalText;
-                            btn.disabled = false;
-                        }
-                    }
-                </script>
+                    html += `<tr class="total-row">
+                                <td colspan="6" style="text-align: right; font-weight: 800; font-size: 0.7rem;">SUBTOTAL
+                                </td>
+                                <td colspan="2" class="amount" style="background: #FFFDE7;">Rp
+                                    ${formatCurrencyValue(categoryTotal)}</td>
+                                <td colspan="2" class="actions-cell">
+                                    <button class="btn-action"
+                                        onclick="openEditCategoryModal('${category.id}')">✏️</button>
+                                    <button class="btn-action" onclick="deleteCategory('${category.id}')">🗑️</button>
+                                </td>
+                            </tr>`;
+                }
+            });
+
+            if (categories.length > 0) {
+                html += `<tr class="grand-total-row">
+                                <td colspan="7" class="grand-total-label">Total Keseluruhan</td>
+                                <td colspan="2" class="grand-total-value">Rp ${formatCurrencyValue(grandTotal)}</td>
+                                <td></td>
+                            </tr>`;
+            } else {
+                html = '<tr><td colspan="10" style="padding: 40px; text-align: center; color: #999;">Belum ada kategori. Klik (+) untuk memulai.</td></tr>';
+            }
+            tableBody.innerHTML = html;
+        }
+
+        function formatCurrencyValue(val) {
+            return new Intl.NumberFormat('id-ID').format(val);
+        }
+
+        // ===== Storage =====
+        function saveToLocalStorage() {
+            localStorage.setItem('seserahanCategories', JSON.stringify(categories));
+            localStorage.setItem('seserahanItems', JSON.stringify(items));
+        }
+
+        function loadFromLocalStorage() {
+            categories = JSON.parse(localStorage.getItem('seserahanCategories')) || [];
+            items = JSON.parse(localStorage.getItem('seserahanItems')) || [];
+        }
+
+        function showSuccessMessage(msg) {
+            const n = document.createElement('div');
+            n.style.cssText = "position:fixed;top:20px;right:20px;background:#4ECDC4;color:#fff;padding:10px 20px;border-radius:10px;z-index:9999;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,0.1);";
+            n.textContent = "✓ " + msg;
+            document.body.appendChild(n);
+            setTimeout(() => n.remove(), 2500);
+        }
+
+        // ===== Cloud Sync Core =====
+        async function handleUploadCloud() {
+            const syncId = document.getElementById('syncIdInput').value.trim();
+            if (!syncId) { alert('Minta ID dulu!'); return; }
+            try {
+                const res = await fetch(`https://kvdb.io/WeddingSync_${syncId}/data`, {
+                    method: 'POST',
+                    body: JSON.stringify({ categories, items })
+                });
+                if (res.ok) showSuccessMessage('Data terkirim ke Cloud!');
+            } catch (e) { alert('Gagal koneksi.'); }
+        }
+
+        async function handleDownloadCloud(customId = null) {
+            const syncId = customId || document.getElementById('syncIdInput').value.trim();
+            if (!syncId) { alert('Masukkan ID!'); return false; }
+            try {
+                const res = await fetch(`https://kvdb.io/WeddingSync_${syncId}/data`);
+                if (!res.ok) { alert('ID tidak ditemukan!'); return false; }
+                const data = await res.json();
+                categories = data.categories || [];
+                items = data.items || [];
+                saveToLocalStorage();
+                renderTable();
+                localStorage.setItem('seserahanSyncId', syncId);
+                showSuccessMessage('Data sinkron!');
+                closeModal('modalSync');
+                return true;
+            } catch (e) { alert('Gagal ambil data.'); return false; }
+        }
+    </script>
 </body>
 
-            </html>
+</html>
