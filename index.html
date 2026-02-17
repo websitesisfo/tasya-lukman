@@ -1202,7 +1202,7 @@
             renderTable();
             setupEventListeners();
 
-            const onboardingSkip = localStorage.getItem('onboardingSkip');
+            const onboardingSkip = sessionStorage.getItem('onboardingSkip');
             const onboarding = document.getElementById('onboardingScreen');
             const intro = document.getElementById('introScreen');
             const mainContainer = document.querySelector('.container');
@@ -1224,7 +1224,7 @@
             const onboarding = document.getElementById('onboardingScreen');
             const intro = document.getElementById('introScreen');
 
-            localStorage.setItem('onboardingSkip', 'true');
+            sessionStorage.setItem('onboardingSkip', 'true');
 
             // 1. Hide Onboarding
             onboarding.classList.add('hidden');
