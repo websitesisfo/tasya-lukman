@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Seserahan Tasya</title>
+    <meta name="description"
+        content="Aplikasi untuk mengelola daftar seserahan pernikahan dengan mudah dan terorganisir">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;0,800;0,900;1,400&family=Outfit:wght@300;400;500;600;700;800&family=Tangerine:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* ===== CSS Variables & Design Tokens ===== */
+        :root {
+            /* Sunshine Modern Dashboard Palette */
+            --color-primary: #FFEE8C;
+            /* User Soft Yellow */
+            --color-primary-dark: #D4AF37;
+            --color-accent: #1A1A1A;
+            --color-bg-body: #FDFDFD;
+            --color-card: #FFFFFF;
+            --color-text-main: #2D2D2D;
+            --color-text-muted: #888888;
+            --color-border-subtle: #F0F0F0;
+
+            /* Status - Vibrant & Clear */
+            --color-lunas: #4CAF50;
+            --color-dp: #FF9800;
+            --color-belum: #9E9E9E;
+
+            --spacing-unit: 8px;
+            --radius-main: 16px;
+            --shadow-premium: 0 10px 30px rgba(0, 0, 0, 0.04), 0 4px 8px rgba(0, 0, 0, 0.02);
+            --transition-fluid: all 0.4s cubic-bezier(0.3, 1, 0.4, 1);
+        }
+
+        /* ===== Global Resets & Base ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #FFFEF9 0%, #FFFFFF 100%);
+            color: var(--color-text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 40px 20px 120px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* ===== Floating Glass Header ===== */
+        .header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 12px 30px;
+            border-radius: 100px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            position: relative;
+            box-shadow: var(--shadow-premium);
+        }
+
+        .header::before {
+            content: '✨';
+            margin-right: 12px;
+            font-size: 1.2rem;
+        }
+
+        .header-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--color-accent);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin: 0;
+            background: linear-gradient(to right, #1A1A1A 20%, #D4AF37 40%, #D4AF37 60%, #1A1A1A 80%);
+            background-size: 200% auto;
+            color: #000;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 4s linear infinite, headerFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        @keyframes headerFloat {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* ===== Section Title ===== */
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--color-accent);
+            position: relative;
+        }
+
+        /* ===== Modern Form Elements ===== */
+        .form-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .form-input {
+            padding: 14px 20px;
+            background: #F9F9F9;
+            border: 1px solid #EAEAEA;
+            border-radius: 12px;
+            color: var(--color-text-main);
+            font-size: 1rem;
+            width: 100%;
+            transition: var(--transition-fluid);
+        }
+
+        .form-input:focus {
+            outline: none;
+            background: #fff;
+            border-color: var(--color-primary-dark);
+            box-shadow: 0 0 0 4px rgba(254, 232, 140, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* ===== Buttons Upgrade ===== */
+        .btn-submit {
+            background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-deep) 100%);
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            width: 100%;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(184, 134, 11, 0.3);
+        }
+
+        /* ===== Elegant Minimalist FAB ===== */
+        .fab-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 5000;
+        }
+
+        .fab-button {
+            width: 60px;
+            height: 60px;
+            background: #fff;
+            border: none;
+            border-radius: 18px;
+            /* Squircle modern look */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-fluid);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fab-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, var(--color-primary) 100%);
+            opacity: 0;
+            transition: var(--transition-fluid);
+        }
+
+        .fab-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(254, 232, 140, 0.4);
+        }
+
+        .fab-button:hover::before {
+            opacity: 1;
+        }
+
+        .fab-icon {
+            font-size: 1.8rem;
+            color: var(--color-accent);
+            z-index: 1;
+            transition: var(--transition-fluid);
+            font-weight: 300;
+        }
+
+        .fab-button:hover .fab-icon {
+            transform: rotate(90deg);
+        }
+
+        .fab-menu {
+            position: absolute;
+            bottom: 75px;
+            right: 0;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .fab-menu.active {
+            display: flex;
+            animation: slideUp 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+
+        .fab-menu-item {
+            background: #fff;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: var(--transition-fluid);
+            border: 1px solid #f0f0f0;
+            white-space: nowrap;
+            color: var(--color-text-main);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .fab-menu-item:hover {
+            background: var(--color-primary);
+            transform: translateX(-5px);
+            border-color: var(--color-primary-dark);
+        }
+
+        /* ===== Premium Modern Modal ===== */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 6000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            /* Strong glassmorphism */
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            position: relative;
+            background: #fff;
+            border-radius: 24px;
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            z-index: 1;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+            animation: modalScale 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+
+        @keyframes modalScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--color-accent);
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 36px;
+            height: 36px;
+            background: #F5F5F5;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition-fluid);
+            border: none;
+            color: var(--color-accent);
+            z-index: 2;
+        }
+
+        .modal-close:hover {
+            background: var(--color-primary);
+            transform: rotate(90deg);
+        }
+
+        /* ===== Enhanced Form Inputs ===== */
+        .modal-form {
+            display: grid;
+            gap: 20px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--color-accent);
+            margin-bottom: 8px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #F8F9FA;
+            border: 1px solid #EDEDED;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 1rem;
+            color: var(--color-text-main);
+            transition: var(--transition-fluid);
+        }
+
+        .form-input:focus {
+            background: #fff;
+            border-color: var(--color-primary-dark);
+            box-shadow: 0 0 0 4px rgba(254, 232, 140, 0.2);
+            outline: none;
+        }
+
+        .btn-submit {
+            background: var(--color-accent);
+            color: #fff;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-fluid);
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .btn-submit:hover {
+            background: var(--color-primary-dark);
+            color: var(--color-accent);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
+        }
+
+        /* ===== Icon Grid Upgrade ===== */
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .icon-option {
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: var(--transition);
+            border: 1px solid #eee;
+        }
+
+        .icon-display {
+            padding: 15px;
+            font-size: 1.8rem;
+            background: #f9f9f9;
+            display: block;
+            text-align: center;
+        }
+
+        .icon-option input:checked+.icon-display {
+            background: var(--color-champagne);
+            border: 2px solid var(--color-gold);
+        }
+
+        .icon-option:hover .icon-display {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--color-primary-light);
+        }
+
+        /* ===== Modern SaaS Table ===== */
+        .table-container {
+            background: var(--color-card);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+            border: 2px solid var(--color-primary-dark);
+            /* Bold table boundary */
+            margin-top: 20px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            /* Better border alignment */
+            font-size: 0.85rem;
+            /* Reduced font size */
+            color: var(--color-text-main);
+            min-width: 1000px;
+            /* Adjusted min-width */
+        }
+
+        .data-table th {
+            background: #FAFAFA;
+            padding: 12px 15px;
+            /* Compact padding */
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-text-muted);
+            border: 1px solid #DDD;
+            /* Clearly defined headers */
+            text-align: center;
+            /* Centered headers */
+        }
+
+        .data-table td {
+            padding: 12px 15px;
+            /* Compact padding */
+            border: 1px solid #EEE;
+            /* Visible internal grid */
+            vertical-align: middle;
+            transition: var(--transition-fluid);
+            text-align: center;
+            /* Centered cell content */
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tbody tr:hover td {
+            background: rgba(254, 232, 140, 0.05);
+        }
+
+        /* Category Bold Style */
+        .category-header {
+            background: var(--color-primary) !important;
+            /* Soft Yellow Theme */
+            font-family: 'Playfair Display', serif;
+            font-size: 0.85rem;
+            /* Reduced category font size */
+            font-weight: 900;
+            color: var(--color-accent);
+            text-align: center;
+            border-right: 2px solid rgba(0, 0, 0, 0.05) !important;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            box-shadow: inset -5px 0 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .no-col {
+            width: 50px;
+            text-align: center;
+            font-weight: 900;
+            color: var(--color-accent);
+            background: #FFF9C4 !important;
+            /* Slightly distinct yellow for ranking */
+            border-right: 1px solid rgba(0, 0, 0, 0.05) !important;
+            font-size: 0.8rem;
+            /* Reduced No. font size */
+        }
+
+        /* Modern Status Pills */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .status-lunas {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .status-dp {
+            background: #FFF3E0;
+            color: #E65100;
+        }
+
+        .status-belum {
+            background: #F5F5F5;
+            color: #616161;
+        }
+
+        /* Amount & Totals */
+        .amount {
+            font-weight: 700;
+            color: var(--color-accent);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .total-row {
+            background: #FFFDF0 !important;
+            font-weight: 800;
+        }
+
+        .category-first-row td {
+            border-top: 3px solid var(--color-primary) !important;
+        }
+
+        .total-row td {
+            border-top: 2px solid var(--color-primary);
+            border-bottom: 3px solid var(--color-primary-dark);
+            color: var(--color-primary-dark);
+        }
+
+        .btn-action {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid #EAEAEA;
+            background: #fff;
+            cursor: pointer;
+            margin: 0 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-fluid);
+            font-size: 0.9rem;
+        }
+
+        .btn-action:hover {
+            border-color: var(--color-primary-dark);
+            transform: scale(1.1) rotate(5deg);
+            background: var(--color-primary);
+        }
+
+        /* ===== Footer & Copyright ===== */
+        .footer {
+            text-align: center;
+            padding: 40px 0 60px;
+            color: var(--color-text-muted);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+        }
+
+        .footer-heart {
+            color: #e74c3c;
+            display: inline-block;
+            margin: 0 5px;
+            animation: heartBeat 1.5s infinite;
+        }
+
+        @keyframes heartBeat {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        /* Subtle Total Style */
+        .grand-total-row td {
+            background: #FFFDE7 !important;
+            /* Softer, less vibrant yellow */
+            color: var(--color-accent) !important;
+            padding: 12px 20px !important;
+            border-top: 2px solid var(--color-primary) !important;
+            border-bottom: 2px solid var(--color-primary) !important;
+        }
+
+        .grand-total-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            text-align: right;
+            font-weight: 800;
+        }
+
+        .grand-total-value {
+            font-size: 1.4rem;
+            font-weight: 900;
+            text-align: center !important;
+            font-family: 'Inter', sans-serif;
+            color: var(--color-primary-dark);
+        }
+
+        /* ===== Intro Splash Screen ===== */
+        .intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), visibility 1s;
+        }
+
+        .intro-screen.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .ring-container {
+            position: relative;
+            width: 200px;
+            height: 150px;
+            margin-bottom: 30px;
+        }
+
+        .ring {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 8px solid var(--color-primary-dark);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+            animation: ringFloat 3s ease-in-out infinite;
+        }
+
+        .ring-1 {
+            left: 20px;
+            z-index: 2;
+        }
+
+        .ring-2 {
+            right: 20px;
+            top: 20px;
+            z-index: 1;
+            animation-delay: -1.5s;
+        }
+
+        .ring-gem {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border: 3px solid var(--color-primary-dark);
+            transform: translateX(-50%) rotate(45deg);
+            box-shadow: 0 0 10px var(--color-primary);
+        }
+
+        @keyframes ringFloat {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(5deg);
+            }
+        }
+
+        .intro-text {
+            font-family: 'Tangerine', cursive;
+            font-size: 4.5rem;
+            color: var(--color-accent);
+            opacity: 0;
+            transform: translateY(15px);
+            animation: textReveal 1.2s ease-out forwards 0.5s;
+            text-align: center;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .intro-ampersand {
+            display: inline-block;
+            font-family: 'Tangerine', cursive;
+            font-size: 3.5rem;
+            color: var(--color-primary-dark);
+            margin: 0 5px;
+            font-weight: 400;
+            vertical-align: middle;
+        }
+
+        .intro-subtitle {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: var(--color-text-muted);
+            margin-top: 12px;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: textReveal 0.8s ease-out forwards 1.4s;
+            font-weight: 400;
+        }
+
+        @keyframes textReveal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== Enhanced Responsive Design ===== */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 95%;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .header-title {
+                font-size: 2.5rem;
+            }
+
+            .intro-text {
+                font-size: 3.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+                margin-top: 10px;
+            }
+
+            .header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .header-title {
+                font-size: 2rem;
+            }
+
+            .table-container {
+                border-radius: 12px;
+                border-width: 1px;
+            }
+
+            .data-table {
+                min-width: 900px;
+                /* Still scrollable but more compact */
+            }
+
+            .modal-content {
+                padding: 25px;
+                width: 95%;
+            }
+
+            .intro-text {
+                font-size: 3rem;
+            }
+
+            .fab-container {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .intro-text {
+                font-size: 2.5rem;
+            }
+
+            .grand-total-value {
+                font-size: 1.2rem;
+            }
+
+            .grand-total-label {
+                font-size: 0.75rem;
+            }
+
+            .fab-button {
+                width: 50px;
+                height: 50px;
+            }
+
+            .fab-icon {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body onload="hideIntro()">
+    <!-- Intro Splash Screen -->
+    <div id="introScreen" class="intro-screen">
+        <div class="ring-container">
+            <div class="ring ring-1">
+                <div class="ring-gem"></div>
+            </div>
+            <div class="ring ring-2"></div>
+        </div>
+        <h1 class="intro-text">
+            Tasya <span class="intro-ampersand">&</span> Lukman
+        </h1>
+        <p class="intro-subtitle">Wedding Planning Journal</p>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <h1 class="header-title">ENGAGEMENT</h1>
+        </header>
+
+        <!-- Table View -->
+        <div id="tableView" class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2" style="width: 50px;">NO</th>
+                        <th rowspan="2">KATEGORI</th>
+                        <th rowspan="2">DETAIL</th>
+                        <th rowspan="2">STATUS</th>
+                        <th rowspan="2">VENDOR / KONTAK / LINK</th>
+                        <th colspan="2">PRICE</th>
+                        <th rowspan="2">TOTAL</th>
+                        <th rowspan="2">KETERANGAN</th>
+                        <th rowspan="2" style="width: 100px;">AKSI</th>
+                    </tr>
+                    <tr>
+                        <th>CPP</th>
+                        <th>CPW</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Table rows will be rendered here -->
+                </tbody>
+            </table>
+        </div>
+
+        <footer class="footer">
+            <p>&copy; 2026 <span>anggifebrinaaa</span></p>
+            <p style="font-size: 0.65rem; margin-top: 10px; opacity: 0.5; text-transform: uppercase;">Engagement
+                Planning Journal Tasya <span class="footer-heart" style="font-size: 8px;">❤</span> Lukman</p>
+        </footer>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="fab-container">
+        <button class="fab-button" id="fabButton">
+            <span class="fab-icon">+</span>
+        </button>
+        <div class="fab-menu" id="fabMenu">
+            <button class="fab-menu-item" id="btnAddCategory">
+                <span class="menu-icon">🏷️</span>
+                <span>Tambah Kategori</span>
+            </button>
+            <button class="fab-menu-item" id="btnAddItem">
+                <span class="menu-icon">📦</span>
+                <span>Tambah Barang</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal: Add Category -->
+    <div class="modal" id="modalAddCategory">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" data-modal="modalAddCategory">×</button>
+            <div class="modal-header">
+                <h2 class="modal-title" id="categoryModalTitle">Tambah Kategori</h2>
+                <p class="modal-subtitle">Kelompokkan kebutuhan anggaran Anda</p>
+            </div>
+            <form id="categoryForm" class="modal-form">
+                <div class="form-group">
+                    <label for="categoryName" class="form-label">Nama Kategori</label>
+                    <input type="text" id="categoryName" class="form-input"
+                        placeholder="Misal: Perhiasan, Alat Sholat..." required>
+                </div>
+                <button type="submit" id="categorySubmitBtn" class="btn-submit">Simpan Kategori</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Item -->
+    <div class="modal" id="modalAddItem">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" data-modal="modalAddItem">×</button>
+            <div class="modal-header">
+                <h2 class="modal-title" id="itemModalTitle">Detail Barang</h2>
+                <p class="modal-subtitle">Lengkapi detail informasi item Anda</p>
+            </div>
+            <form id="itemForm" class="modal-form">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label for="itemCategory" class="form-label">📦 Kategori</label>
+                        <select id="itemCategory" class="form-input" required>
+                            <option value="">Pilih Kategori</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemName" class="form-label">✨ Nama Barang</label>
+                        <input type="text" id="itemName" class="form-input" placeholder="Misal: Mukena Sutra" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label for="itemStatus" class="form-label">📌 Status</label>
+                        <select id="itemStatus" class="form-input" required>
+                            <option value="Belum">Belum</option>
+                            <option value="DP">DP</option>
+                            <option value="Lunas">Lunas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemVendor" class="form-label">🔗 Vendor / Link</label>
+                        <input type="text" id="itemVendor" class="form-input" placeholder="Link Shopee atau Toko">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label for="itemCPP" class="form-label">💰 CPP</label>
+                        <input type="number" id="itemCPP" class="form-input" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="itemCPW" class="form-label">💰 CPW</label>
+                        <input type="number" id="itemCPW" class="form-input" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="itemTotal" class="form-label">📊 Total</label>
+                        <input type="number" id="itemTotal" class="form-input" readonly style="background: #f0f0f0;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="itemNote" class="form-label">📝 Keterangan Tambahan</label>
+                    <textarea id="itemNote" class="form-input" placeholder="Tulis catatan di sini..."
+                        rows="2"></textarea>
+                </div>
+
+                <button type="submit" id="itemSubmitBtn" class="btn-submit">Simpan Item Baru</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ===== Intro Animation Logic =====
+        function hideIntro() {
+            setTimeout(() => {
+                const intro = document.getElementById('introScreen');
+                if (intro) intro.classList.add('fade-out');
+            }, 2500); // Tampilkan selama 2.5 detik
+        }
+        // ===== State Management =====
+        let categories = [];
+        let items = [];
+        let isEditingCategory = false;
+        let editingCategoryId = null;
+        let isEditingItem = false;
+        let editingItemId = null;
+
+        // Load data from localStorage on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromLocalStorage();
+            renderTable();
+            setupEventListeners();
+        });
+
+        // ===== Event Listeners Setup =====
+        function setupEventListeners() {
+            // FAB button toggle
+            const fabButton = document.getElementById('fabButton');
+            const fabMenu = document.getElementById('fabMenu');
+
+            fabButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fabMenu.classList.toggle('active');
+            });
+
+            // Close FAB menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.fab-container')) {
+                    fabMenu.classList.remove('active');
+                }
+            });
+
+            // FAB menu items
+            document.getElementById('btnAddCategory').addEventListener('click', () => {
+                openModal('modalAddCategory');
+                fabMenu.classList.remove('active');
+            });
+
+            document.getElementById('btnAddItem').addEventListener('click', () => {
+                if (categories.length === 0) {
+                    alert('Silakan buat kategori terlebih dahulu sebelum menambah barang!');
+                    return;
+                }
+                populateCategoryDropdown();
+                openModal('modalAddItem');
+                fabMenu.classList.remove('active');
+            });
+
+            // Modal close buttons
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    closeModal(btn.dataset.modal);
+                });
+            });
+
+            // Modal overlay clicks
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', () => {
+                    closeModal(overlay.parentElement.id);
+                });
+            });
+
+            // Category form submission
+            document.getElementById('categoryForm').addEventListener('submit', handleCategorySubmit);
+
+            // Item form submission
+            document.getElementById('itemForm').addEventListener('submit', handleItemSubmit);
+
+            // Auto-calculate Total
+            const priceInputs = ['itemCPP', 'itemCPW'];
+            priceInputs.forEach(id => {
+                document.getElementById(id).addEventListener('input', calculateTotal);
+            });
+
+            // Update "Tambah Barang" button state
+            updateAddItemButtonState();
+        }
+
+        function calculateTotal() {
+            const cpp = parseFloat(document.getElementById('itemCPP').value) || 0;
+            const cpw = parseFloat(document.getElementById('itemCPW').value) || 0;
+            document.getElementById('itemTotal').value = cpp + cpw;
+        }
+
+        // ===== Modal Functions =====
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+
+            // Reset forms and edit state
+            if (modalId === 'modalAddCategory') {
+                document.getElementById('categoryForm').reset();
+                isEditingCategory = false;
+                editingCategoryId = null;
+                document.querySelector('#modalAddCategory .modal-title').textContent = 'Tambah Kategori';
+                document.getElementById('categorySubmitBtn').textContent = 'Simpan Kategori';
+            } else if (modalId === 'modalAddItem') {
+                document.getElementById('itemForm').reset();
+                isEditingItem = false;
+                editingItemId = null;
+                document.querySelector('#modalAddItem .modal-title').textContent = 'Detail Barang';
+                document.getElementById('itemSubmitBtn').textContent = 'Simpan Item Baru';
+            }
+        }
+
+        // ===== Category Functions =====
+        function openEditCategoryModal(categoryId) {
+            const category = categories.find(c => c.id === categoryId);
+            if (!category) return;
+
+            isEditingCategory = true;
+            editingCategoryId = categoryId;
+
+            document.getElementById('categoryName').value = category.name;
+            document.querySelector('#modalAddCategory .modal-title').textContent = 'Edit Kategori';
+            document.getElementById('categorySubmitBtn').textContent = 'Simpan Perubahan';
+
+            openModal('modalAddCategory');
+        }
+
+        function handleCategorySubmit(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('categoryName').value.trim();
+
+            if (isEditingCategory) {
+                const category = categories.find(c => c.id === editingCategoryId);
+                if (category) {
+                    category.name = name;
+                    showSuccessMessage('Kategori berhasil diperbarui!');
+                }
+            } else {
+                const newCategory = {
+                    id: Date.now().toString(),
+                    name: name,
+                    createdAt: new Date().toISOString()
+                };
+                categories.push(newCategory);
+                showSuccessMessage('Kategori berhasil ditambahkan!');
+            }
+
+            saveToLocalStorage();
+            renderTable();
+            updateAddItemButtonState();
+            closeModal('modalAddCategory');
+        }
+
+        function deleteCategory(categoryId) {
+            const category = categories.find(c => c.id === categoryId);
+            const categoryItems = items.filter(i => i.categoryId === categoryId);
+
+            let confirmMessage = `Apakah Anda yakin ingin menghapus kategori "${category.name}"?`;
+            if (categoryItems.length > 0) {
+                confirmMessage += `\n\nKategori ini memiliki ${categoryItems.length} barang yang akan ikut terhapus.`;
+            }
+
+            if (confirm(confirmMessage)) {
+                categories = categories.filter(c => c.id !== categoryId);
+                items = items.filter(i => i.categoryId !== categoryId);
+                saveToLocalStorage();
+                renderTable();
+                updateAddItemButtonState();
+            }
+        }
+
+        // ===== Item Functions =====
+        function openEditItemModal(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            isEditingItem = true;
+            editingItemId = itemId;
+
+            populateCategoryDropdown();
+            document.getElementById('itemCategory').value = item.categoryId;
+            document.getElementById('itemName').value = item.name;
+            document.getElementById('itemStatus').value = item.status;
+            document.getElementById('itemVendor').value = item.vendor || '';
+            document.getElementById('itemCPP').value = item.cpp || 0;
+            document.getElementById('itemCPW').value = item.cpw || 0;
+            document.getElementById('itemTotal').value = item.total || 0;
+            document.getElementById('itemNote').value = item.note || '';
+
+            document.querySelector('#modalAddItem .modal-title').textContent = 'Edit Item';
+            document.getElementById('itemSubmitBtn').textContent = 'Simpan Perubahan';
+
+            openModal('modalAddItem');
+        }
+
+        function handleItemSubmit(e) {
+            e.preventDefault();
+
+            const categoryId = document.getElementById('itemCategory').value;
+            const name = document.getElementById('itemName').value.trim();
+            const status = document.getElementById('itemStatus').value;
+            const vendor = document.getElementById('itemVendor').value.trim();
+            const cpp = parseFloat(document.getElementById('itemCPP').value) || 0;
+            const cpw = parseFloat(document.getElementById('itemCPW').value) || 0;
+            const total = parseFloat(document.getElementById('itemTotal').value) || 0;
+            const note = document.getElementById('itemNote').value.trim();
+
+            if (isEditingItem) {
+                const item = items.find(i => i.id === editingItemId);
+                if (item) {
+                    item.categoryId = categoryId;
+                    item.name = name;
+                    item.status = status;
+                    item.vendor = vendor;
+                    item.cpp = cpp;
+                    item.cpw = cpw;
+                    item.total = total;
+                    item.note = note;
+                    showSuccessMessage('Barang berhasil diperbarui!');
+                }
+            } else {
+                const newItem = {
+                    id: Date.now().toString(),
+                    categoryId: categoryId,
+                    name: name,
+                    status: status,
+                    vendor: vendor,
+                    cpp: cpp,
+                    cpw: cpw,
+                    total: total,
+                    note: note,
+                    createdAt: new Date().toISOString()
+                };
+                items.push(newItem);
+                showSuccessMessage('Barang berhasil ditambahkan!');
+            }
+
+            saveToLocalStorage();
+            renderTable();
+            closeModal('modalAddItem');
+        }
+
+        function deleteItem(itemId) {
+            if (confirm('Apakah Anda yakin ingin menghapus barang ini?')) {
+                items = items.filter(i => i.id !== itemId);
+                saveToLocalStorage();
+                renderTable();
+            }
+        }
+
+        // ===== Render Functions =====
+        function renderTable() {
+            const tableBody = document.getElementById('tableBody');
+
+            if (categories.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 40px;">Belum ada kategori. Silakan tambah kategori terlebih dahulu.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            let categoryCounter = 1;
+
+            let grandTotal = 0;
+            categories.forEach((category) => {
+                const categoryItems = items.filter(item => item.categoryId === category.id);
+
+                // Sort items within category if needed
+                const itemsToRender = [...categoryItems].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+                if (itemsToRender.length === 0) {
+                    // Render an empty row for categories with no items to match spreadsheet look
+                    html += `
+                        <tr>
+                            <td class="no-col">${categoryCounter++}</td>
+                            <td class="category-header">${category.name}</td>
+                            <td colspan="7" style="text-align: center; color: #999; font-style: italic;">Belum ada data barang</td>
+                            <td class="actions-cell">
+                                <button class="btn-action" onclick="openEditCategoryModal('${category.id}')" title="Edit Kategori">✏️</button>
+                                <button class="btn-action" onclick="deleteCategory('${category.id}')" title="Hapus Kategori">🗑️</button>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                const rowSpan = itemsToRender.length;
+                let categoryTotal = 0;
+
+                categoryItems.forEach((item, index) => {
+                    const statusClass = item.status ? `status-${item.status.toLowerCase()}` : 'status-belum';
+                    const itemTotal = (item.total || 0);
+                    categoryTotal += itemTotal;
+                    grandTotal += itemTotal;
+
+                    let vendorHTML = item.vendor || '-';
+                    if (item.vendor && (item.vendor.startsWith('http') || item.vendor.includes('www.'))) {
+                        const url = item.vendor.startsWith('http') ? item.vendor : `https://${item.vendor}`;
+                        vendorHTML = `<div style="text-align: center;"><a href="${url}" target="_blank" style="color: #D4AF37; font-weight: 700; text-decoration: none; border: 1px solid #D4AF37; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; display: inline-block;">BELI DISINI</a></div>`;
+                    }
+
+                    // Add a class to rows for styling category groups
+                    const rowGroupClass = index === 0 ? 'category-first-row' : '';
+
+                    html += `
+                        <tr class="${rowGroupClass}">
+                            ${index === 0 ? `<td class="no-col" rowspan="${rowSpan + 1}" style="background: #FFFDE7 !important;">${categoryCounter++}</td>` : ''}
+                            ${index === 0 ? `<td class="category-header" rowspan="${rowSpan + 1}" style="background: #FFFDE7 !important;">${category.name}</td>` : ''}
+                            <td style="font-weight: 500;">${item.name}</td>
+                            <td>
+                                <div class="status-pill ${statusClass}">
+                                    <span>${item.status || 'Belum'}</span>
+                                </div>
+                            </td>
+                            <td>${vendorHTML}</td>
+                            <td class="amount"><span class="amount-prefix">Rp</span> ${formatCurrencyValue(item.cpp || 0)}</td>
+                            <td class="amount"><span class="amount-prefix">Rp</span> ${formatCurrencyValue(item.cpw || 0)}</td>
+                            <td class="amount" style="font-weight: 700; color: #1A1A1A;"><span class="amount-prefix">Rp</span> ${formatCurrencyValue(item.total || 0)}</td>
+                            <td style="font-size: 0.8rem; color: #666;">${item.note || '-'}</td>
+                            <td class="actions-cell">
+                                <button class="btn-action" onclick="openEditItemModal('${item.id}')" title="Edit">✏️</button>
+                                <button class="btn-action" onclick="deleteItem('${item.id}')" title="Hapus">🗑️</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                // Add Total row for this category
+                html += `
+                    <tr class="total-row">
+                        <td class="total-label" colspan="3">Total</td>
+                        <td class="amount" colspan="3" style="background: transparent !important; border-left: none;"><span class="amount-prefix">Rp</span> ${formatCurrencyValue(categoryTotal)}</td>
+                        <td colspan="2" class="actions-cell"></td>
+                    </tr>
+                `;
+            });
+
+            // Add Grand Total row
+            html += `
+                <tr class="grand-total-row">
+                    <td colspan="5" class="grand-total-label">Total Keseluruhan</td>
+                    <td colspan="3" class="grand-total-value">Rp ${formatCurrencyValue(grandTotal)}</td>
+                    <td colspan="2"></td>
+                </tr>
+            `;
+
+            tableBody.innerHTML = html;
+        }
+
+        function formatCurrencyValue(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function populateCategoryDropdown() {
+            const select = document.getElementById('itemCategory');
+            select.innerHTML = '<option value="">Pilih Kategori</option>' +
+                categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+        }
+
+        // ===== Summary Logic (Disabled - now in table) =====
+        function updateSummary() {
+            // No longer needed
+        }
+
+        function updateAddItemButtonState() {
+            const btnAddItem = document.getElementById('btnAddItem');
+            if (categories.length === 0) {
+                btnAddItem.disabled = true;
+                btnAddItem.style.opacity = '0.5';
+            } else {
+                btnAddItem.disabled = false;
+                btnAddItem.style.opacity = '1';
+            }
+        }
+
+        // ===== Utility Functions =====
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('seserahanCategories', JSON.stringify(categories));
+            localStorage.setItem('seserahanItems', JSON.stringify(items));
+        }
+
+        function loadFromLocalStorage() {
+            const storedCategories = localStorage.getItem('seserahanCategories');
+            const storedItems = localStorage.getItem('seserahanItems');
+
+            if (storedCategories) {
+                try {
+                    categories = JSON.parse(storedCategories);
+                } catch (e) {
+                    console.error('Error loading categories:', e);
+                    categories = [];
+                }
+            }
+
+            if (storedItems) {
+                try {
+                    items = JSON.parse(storedItems);
+                } catch (e) {
+                    console.error('Error loading items:', e);
+                    items = [];
+                }
+            }
+        }
+
+        function showSuccessMessage(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                z-index: 3000;
+                animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s;
+                font-family: var(--font-body);
+                font-weight: 600;
+            `;
+            notification.textContent = `✓ ${message}`;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>
