@@ -530,18 +530,17 @@
 
         /* Category Bold Style */
         .category-header {
-            background: var(--color-primary) !important;
-            /* Soft Yellow Theme */
+            background: #FFF9C4 !important;
             font-family: 'Playfair Display', serif;
             font-size: 0.85rem;
-            /* Reduced category font size */
             font-weight: 900;
             color: var(--color-accent);
             text-align: center;
-            border-right: 2px solid rgba(0, 0, 0, 0.05) !important;
+            border-right: 1px solid rgba(0, 0, 0, 0.2) !important;
+            border-left: 1px solid rgba(0, 0, 0, 0.2) !important;
+            /* Visual separator */
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            box-shadow: inset -5px 0 10px rgba(0, 0, 0, 0.02);
         }
 
         .no-col {
@@ -550,10 +549,9 @@
             font-weight: 900;
             color: var(--color-accent);
             background: #FFF9C4 !important;
-            /* Slightly distinct yellow for ranking */
-            border-right: 1px solid rgba(0, 0, 0, 0.05) !important;
+            border-right: 1px solid rgba(0, 0, 0, 0.15) !important;
+            /* Stronger separator */
             font-size: 0.8rem;
-            /* Reduced No. font size */
         }
 
         /* Modern Status Pills */
@@ -772,7 +770,7 @@
             align-items: center;
             justify-content: center;
             z-index: 9999;
-            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), visibility 1s;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
         }
 
         .intro-screen.fade-out {
@@ -841,7 +839,7 @@
             color: var(--color-accent);
             opacity: 0;
             transform: translateY(15px);
-            animation: textReveal 1.2s ease-out forwards 0.5s;
+            animation: textReveal 0.8s ease-out forwards 0.2s;
             text-align: center;
             font-weight: 700;
             line-height: 1;
@@ -1028,7 +1026,7 @@
             <p>Pilih bagaimana Anda ingin memulai jurnal perencanaan pernikahan ini.</p>
 
             <div class="onboarding-input-group">
-                <input type="text" id="onboardingSyncId" class="form-input" placeholder="Kode: tasya-lukman"
+                <input type="text" id="onboardingSyncId" class="form-input" placeholder="Masukkan Kode Rahasia"
                     style="text-align: center; font-family: monospace; margin-bottom: 10px;">
                 <button class="onboarding-btn" id="btnContinueSync"
                     style="background: #2196F3; margin-bottom: 10px;">Lanjutkan dari HP Lain</button>
@@ -1042,7 +1040,7 @@
             </div>
 
             <div class="onboarding-footer">
-                Jurnal Perencanaan Tasya & Lukman
+                Engagement Planning Journal Tasya & Lukman
             </div>
         </div>
     </div>
@@ -1107,9 +1105,10 @@
                 <span class="menu-icon">📦</span>
                 <span>Tambah Barang</span>
             </button>
-            <button class="fab-menu-item" id="btnSyncCloud" style="background: var(--color-gold); color: #fff;">
+            <button class="fab-menu-item" id="btnSyncCloud"
+                style="background: #1A1A1A; color: #FFEE8C; border: 1px solid #FFEE8C;">
                 <span class="menu-icon">☁️</span>
-                <span>Sinkronisasi</span>
+                <span style="font-weight: 700;">Sinkronisasi</span>
             </button>
         </div>
     </div>
@@ -1209,17 +1208,17 @@
             <div class="modal-form">
                 <div class="form-group"
                     style="background: #F9F9F9; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px dashed #D4AF37;">
-                    <label class="form-label" style="color: var(--color-accent);">🔑 KODE RAHASIA:</label>
+                    <label class="form-label" style="color: var(--color-accent);">🔑 STATUS SYNC:</label>
                     <div id="currentSyncIdDisplay"
                         style="font-family: monospace; font-size: 1.2rem; font-weight: 800; color: #1A1A1A; text-align: center; margin-top: 5px;">
-                        tasya-lukman</div>
+                        ••••••••</div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Update Kode Sync</label>
                     <div style="display: flex; gap: 10px;">
-                        <input type="text" id="syncIdInput" class="form-input" value="tasya-lukman"
-                            style="font-family: monospace;" readonly>
+                        <input type="text" id="syncIdInput" class="form-input" placeholder="Masukkan Kode"
+                            style="text-align: center; font-family: monospace;">
                     </div>
                 </div>
 
@@ -1247,8 +1246,6 @@
     <script>
         // ===== Initialization Flow =====
         function initApp() {
-            localStorage.setItem('seserahanSyncId', 'tasya-lukman'); // Default fixed ID
-            document.getElementById('onboardingSyncId').value = 'tasya-lukman'; // Pre-fill onboarding
             loadFromLocalStorage();
             renderTable();
             setupEventListeners();
@@ -1267,7 +1264,7 @@
 
             if (hasData || onboardingSkip) {
                 onboarding.style.display = 'none';
-                hideIntro();
+                hideIntro(2200); // Give enough time for subtitle reveal
             } else {
                 intro.style.display = 'none';
             }
@@ -1290,7 +1287,7 @@
             }, 600);
         }
 
-        function hideIntro() {
+        function hideIntro(delay = 2200) {
             const intro = document.getElementById('introScreen');
             const mainContainer = document.querySelector('.container');
             const fab = document.querySelector('.fab-container');
@@ -1298,15 +1295,34 @@
             setTimeout(() => {
                 if (intro) intro.classList.add('fade-out');
 
-                // Show core app
-                mainContainer.style.opacity = '1';
-                mainContainer.style.transition = 'opacity 1s ease';
-                fab.style.display = 'block';
+                // Start revealing app slightly after fade starts
+                setTimeout(() => {
+                    mainContainer.style.opacity = '1';
+                    mainContainer.style.transition = 'opacity 0.8s ease';
+                    fab.style.display = 'block';
+                }, 200);
 
                 setTimeout(() => {
                     if (intro) intro.style.display = 'none';
-                }, 1000);
-            }, 2500);
+                }, 800);
+            }, delay);
+        }
+
+        function updateSyncUI() {
+            const sid = localStorage.getItem('seserahanSyncId');
+            const display = document.getElementById('currentSyncIdDisplay');
+            if (display) {
+                display.textContent = sid ? 'TERKONEKSI ✔️' : 'BELUM AKTIF ❌';
+                display.style.color = sid ? '#2E7D32' : '#C62828';
+                display.style.background = sid ? '#E8F5E9' : '#FFEBEE';
+                display.style.padding = '10px';
+                display.style.borderRadius = '8px';
+            }
+
+            const syncBtnLabel = document.querySelector('#btnSyncCloud span:last-child');
+            if (syncBtnLabel) {
+                syncBtnLabel.textContent = sid ? 'Cek Sinkronisasi' : 'Sinkronisasi';
+            }
         }
 
         // ===== State Management =====
@@ -1356,15 +1372,6 @@
             });
 
             // ID is now fixed to 'tasya-lukman'
-
-            function updateSyncUI() {
-                const sid = 'tasya-lukman';
-                const display = document.getElementById('currentSyncIdDisplay');
-                if (display) display.textContent = sid;
-
-                const syncBtnLabel = document.querySelector('#btnSyncCloud span:last-child');
-                if (syncBtnLabel) syncBtnLabel.textContent = `Sync: ${sid}`;
-            }
 
             document.getElementById('btnUploadCloud').onclick = handleUploadCloud;
             document.getElementById('btnDownloadCloud').onclick = () => handleDownloadCloud();
@@ -1549,15 +1556,17 @@
                 let categoryTotal = 0;
 
                 if (categoryItems.length === 0) {
-                    html += `<tr>
+                    html += `<tr class="category-first-row">
                                 <td class="no-col">${categoryCounter++}</td>
-                                <td class="category-header">${category.name}</td>
-                                <td colspan="7" style="color: #999; font-style: italic;">Belum ada barang</td>
-                                <td class="actions-cell">
-                                    <button class="btn-action"
-                                        onclick="openEditCategoryModal('${category.id}')">✏️</button>
-                                    <button class="btn-action" onclick="deleteCategory('${category.id}')">🗑️</button>
+                                <td class="category-header">
+                                    ${category.name}
+                                    <div style="margin-top: 8px; font-size: 0.7rem; opacity: 0.6;">
+                                        <span style="cursor:pointer; margin-right: 8px;" onclick="openEditCategoryModal('${category.id}')">✏️</span>
+                                        <span style="cursor:pointer;" onclick="deleteCategory('${category.id}')">🗑️</span>
+                                    </div>
                                 </td>
+                                <td colspan="7" style="color: #999; font-style: italic;">Belum ada barang</td>
+                                <td class="actions-cell"></td>
                             </tr>`;
                 } else {
                     categoryItems.forEach((item, index) => {
@@ -1572,10 +1581,15 @@
                                 style="color: #D4AF37; font-weight: 700;">LINK</a>`;
                         }
 
-                        html += `<tr>
+                        html += `<tr class="${index === 0 ? 'category-first-row' : ''}">
                                 ${index === 0 ? `<td class="no-col" rowspan="${rowSpan + 1}">${categoryCounter++}</td>`
                                 : ''}
-                                ${index === 0 ? `<td class="category-header" rowspan="${rowSpan + 1}">${category.name}
+                                ${index === 0 ? `<td class="category-header" rowspan="${rowSpan + 1}">
+                                    ${category.name}
+                                    <div style="margin-top: 8px; font-size: 0.7rem; opacity: 0.6;">
+                                        <span style="cursor:pointer; margin-right: 8px;" onclick="openEditCategoryModal('${category.id}')">✏️</span>
+                                        <span style="cursor:pointer;" onclick="deleteCategory('${category.id}')">🗑️</span>
+                                    </div>
                                 </td>` : ''}
                                 <td data-label="DETAIL">${item.name}</td>
                                 <td data-label="STATUS">
@@ -1594,14 +1608,8 @@
                             </tr>`;
                     });
                     html += `<tr class="total-row">
-                                <td colspan="6" style="text-align: right; font-weight: 800; font-size: 0.7rem;">SUBTOTAL
-                                </td>
-                                <td colspan="2" class="amount" style="background: #FFFDE7;">Rp
-                                    ${formatCurrencyValue(categoryTotal)}</td>
-                                <td colspan="2" class="actions-cell">
-                                    <button class="btn-action"
-                                        onclick="openEditCategoryModal('${category.id}')">✏️</button>
-                                    <button class="btn-action" onclick="deleteCategory('${category.id}')">🗑️</button>
+                                <td colspan="8" style="text-align: center; font-weight: 800; font-size: 0.75rem; background: #FFFDF0; color: #856404;">
+                                    SUBTOTAL ${category.name.toUpperCase()}: &nbsp; Rp ${formatCurrencyValue(categoryTotal)}
                                 </td>
                             </tr>`;
                 }
