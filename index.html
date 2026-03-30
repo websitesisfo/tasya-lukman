@@ -1571,39 +1571,47 @@
             }
         }
 
-        async function handleDownloadCloud() {
-            try {
-                const res = await fetch(`${KVDB_URL}?nocache=${Date.now()}`);
-                if (!res.ok) return true;
+async function handleDownloadCloud() {
+    try {
+        const res = await fetch(`${KVDB_URL}?nocache=${Date.now()}`);
 
-                const cloudData = await res.json();
-                if (!cloudData || !cloudData.updatedAt) return true;
-
-                const lastLocalUpdate = parseInt(localStorage.getItem('seserahan_last_update') || '0');
-
-                // Only sync if cloud data is newer than our last upload/download
-                if (cloudData.updatedAt > lastLocalUpdate) {
-                    categories = cloudData.categories || [];
-                    items = cloudData.items || [];
-
-                    localStorage.setItem('seserahanCategories', JSON.stringify(categories));
-                    localStorage.setItem('seserahanItems', JSON.stringify(items));
-                    localStorage.setItem('seserahan_last_update', cloudData.updatedAt);
-
-                    renderTable();
-                    showSuccessMessage('Data Diperbarui dari HP Lain!');
-                }
-                return true;
-            } catch (e) {
-                console.error('Download Error:', e);
-                return false;
-            }
+        // ✅ cek error (tambahan yang benar)
+        if (!res.ok) {
+            console.warn("Gagal ambil data dari KVDB");
+            return true;
         }
+
+        const cloudData = await res.json();
+
+        if (!cloudData || !cloudData.updatedAt) return true;
+
+        const lastLocalUpdate = parseInt(localStorage.getItem('seserahan_last_update') || '0');
+
+        // Only sync if cloud data is newer
+        if (cloudData.updatedAt > lastLocalUpdate) {
+            categories = cloudData.categories || [];
+            items = cloudData.items || [];
+
+            localStorage.setItem('seserahanCategories', JSON.stringify(categories));
+            localStorage.setItem('seserahanItems', JSON.stringify(items));
+            localStorage.setItem('seserahan_last_update', cloudData.updatedAt);
+
+            renderTable();
+            showSuccessMessage('Data Diperbarui dari HP Lain!');
+        }
+
+        return true;
+
+    } catch (e) {
+        console.error('Download Error:', e);
+        return false;
+    }
+}
 
         // Background Check every 5 seconds
         setInterval(() => {
             handleDownloadCloud();
-        }, 5000);
+        }, 10000);
     </script>
 </body>
 
