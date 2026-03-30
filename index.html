@@ -1181,6 +1181,7 @@
     </footer>
 
     <script>
+        const KVDB_URL = "https://kvdb.io/8rBc7t6Xdc1zWVz3RxZwCg/data";
         // ===== Initialization Flow =====
         const SESSION_ID = 'tasya-lukman';
 
@@ -1544,7 +1545,7 @@
                 const timestamp = Date.now();
                 localStorage.setItem('seserahan_last_update', timestamp);
 
-                const res = await fetch(`https://kvdb.io/tasya_lukman_v2026/data`, {
+                const res = await fetch(KVDB_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1572,7 +1573,7 @@
 
         async function handleDownloadCloud() {
             try {
-                const res = await fetch(`https://kvdb.io/tasya_lukman_v2026/data?nocache=${Date.now()}`);
+                const res = await fetch(`${KVDB_URL}?nocache=${Date.now()}`);
                 if (!res.ok) return true;
 
                 const cloudData = await res.json();
@@ -1607,4 +1608,3 @@
 </body>
 
 </html>
-
