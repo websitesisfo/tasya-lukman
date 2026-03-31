@@ -1181,7 +1181,6 @@
     </footer>
 
     <script>
-        const KVDB_URL = "https://kvdb.io/8rBc7t6Xdc1zWVz3RxZwCg/data";
         // ===== Initialization Flow =====
         const SESSION_ID = 'tasya-lukman';
 
@@ -1533,61 +1532,63 @@
         }
 
         // ===== Cloud Sync Core =====
-        async function handleUploadCloud() {
-            const indicator = document.getElementById('syncIndicator');
-            if (indicator) {
-                indicator.style.opacity = '1';
-                indicator.style.background = 'rgba(26, 26, 26, 0.9)';
-                indicator.innerHTML = '<span>⏳</span> Mengirim Data...';
-            }
+async function handleUploadCloud() {
+    const indicator = document.getElementById('syncIndicator');
+    if (indicator) {
+        indicator.style.opacity = '1';
+        indicator.style.background = 'rgba(26, 26, 26, 0.9)';
+        indicator.innerHTML = '<span>⏳</span> Mengirim Data...';
+    }
 
-            try {
-                const timestamp = Date.now();
-                localStorage.setItem('seserahan_last_update', timestamp);
+    try {
+        const timestamp = Date.now();
+        localStorage.setItem('seserahan_last_update', timestamp);
 
-                const res = await fetch(KVDB_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        categories: categories,
-                        items: items,
-                        updatedAt: timestamp
-                    })
-                });
+        const res = await fetch(`https://kvdb.io/Eb8tAPknLcBt74fi5TikJQ/${SESSION_ID}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                categories: categories,
+                items: items,
+                updatedAt: timestamp
+            })
+        });
 
-                if (!res.ok) throw new Error('Network response not ok');
+        if (!res.ok) throw new Error('Network response not ok');
 
-                if (indicator) {
-                    indicator.innerHTML = '<span style="color:#4CAF50;">✔</span> Data Tersimpan';
-                    setTimeout(() => { indicator.style.opacity = '0'; }, 1000);
-                }
-            } catch (e) {
-                console.error('Upload Error:', e);
-                if (indicator) {
-                    indicator.style.background = '#d32f2f';
-                    indicator.innerHTML = '<span>❌</span> Gagal Sinkron';
-                    setTimeout(() => { indicator.style.opacity = '0'; }, 3000);
-                }
-            }
+        if (indicator) {
+            indicator.innerHTML = '<span style="color:#4CAF50;">✔</span> Data Tersimpan';
+            setTimeout(() => { indicator.style.opacity = '0'; }, 1000);
         }
+    } catch (e) {
+        console.error('Upload Error:', e);
+        if (indicator) {
+            indicator.style.background = '#d32f2f';
+            indicator.innerHTML = '<span>❌</span> Gagal Sinkron';
+            setTimeout(() => { indicator.style.opacity = '0'; }, 3000);
+        }
+    }
+}
 
 async function handleDownloadCloud() {
     try {
-        const res = await fetch(`${KVDB_URL}?nocache=${Date.now()}`);
+        const res = await fetch(`https://kvdb.io/Eb8tAPknLcBt74fi5TikJQ/${SESSION_ID}?nocache=${Date.now()}`);
+        if (!res.ok) return true;
 
-        // ✅ cek error (tambahan yang benar)
-        if (!res.ok) {
-            console.warn("Gagal ambil data dari KVDB");
+        const text = await res.text();
+        if (!text) return true;
+
+        let cloudData;
+        try {
+            cloudData = JSON.parse(text);
+        } catch {
             return true;
         }
-
-        const cloudData = await res.json();
-
         if (!cloudData || !cloudData.updatedAt) return true;
 
         const lastLocalUpdate = parseInt(localStorage.getItem('seserahan_last_update') || '0');
 
-        // Only sync if cloud data is newer
+        // Sync hanya kalau cloud data lebih baru
         if (cloudData.updatedAt > lastLocalUpdate) {
             categories = cloudData.categories || [];
             items = cloudData.items || [];
@@ -1597,11 +1598,9 @@ async function handleDownloadCloud() {
             localStorage.setItem('seserahan_last_update', cloudData.updatedAt);
 
             renderTable();
-            showSuccessMessage('Data Diperbarui dari HP Lain!');
+            showSuccessMessage('Data Diperbarui dari perangkat lain!');
         }
-
         return true;
-
     } catch (e) {
         console.error('Download Error:', e);
         return false;
@@ -1611,7 +1610,7 @@ async function handleDownloadCloud() {
         // Background Check every 5 seconds
         setInterval(() => {
             handleDownloadCloud();
-        }, 10000);
+        }, 5000);
     </script>
 </body>
 
